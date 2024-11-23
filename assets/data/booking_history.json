@@ -1,0 +1,60 @@
+{
+    "customers": [{
+      "customerId": "C001",
+      "customerName": "John Doe",
+      "email": "theanh@gmail.com",
+      "phone": "123456",
+      "bookingHistory": [
+        {
+          "bookingId": "B002",
+          "bookingDate": "2024-12-15",
+          "room": "Standard Room",
+          "checkInDate": "2024-12-20",
+          "checkOutDate": "2024-12-25",
+          "status": "Pending"
+        },
+        {
+          "bookingId": "B002",
+          "bookingDate": "2024-12-15",
+          "room": "Standard Room",
+          "checkInDate": "2024-12-20",
+          "checkOutDate": "2024-12-25",
+          "status": "Pending"
+        },
+        {
+          "bookingId": "B002",
+          "bookingDate": "2024-12-15",
+          "room": "Standard Room",
+          "checkInDate": "2024-12-20",
+          "checkOutDate": "2024-12-25",
+          "status": "Pending"
+        },
+        {
+          "bookingId": "B002",
+          "bookingDate": "2024-12-15",
+          "room": "Standard Room",
+          "checkInDate": "2024-12-20",
+          "checkOutDate": "2024-12-25",
+          "status": "Pending"
+        },
+        {
+          "bookingId": "B002",
+          "bookingDate": "2024-12-15",
+          "room": "Standard Room",
+          "checkInDate": "2024-12-20",
+          "checkOutDate": "2024-12-25",
+          "status": "Pending"
+        }
+      ]
+    },
+    {
+      "customerId": "C001",
+      "customerName": "John Doe",
+      "email": "john.doe@example.com",
+      "phone": "1234567890",
+      "bookingHistory": [ 
+      ]
+    }
+  ]
+  }
+  
