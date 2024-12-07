@@ -105,7 +105,7 @@ class _CustomerLoginPageState extends State<CustomerLoginPage> {
                           const SizedBox(height: 50),
                           const Center(
                             child: Text(
-                              "Welcome back!",
+                              "Welcome!",
                               style: TextStyle(fontSize: 40),
                             ),
                           ),
@@ -204,7 +204,7 @@ class _CustomerLoginPageState extends State<CustomerLoginPage> {
                   children: [
                     const SizedBox(height: 50),
                     const Text(
-                      "Welcome back!",
+                      "Welcome !",
                       style: TextStyle(fontSize: 40),
                     ),
                     const SizedBox(height: 20),

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_2/customer_home_page.dart';
+// import 'package:flutter_2/customer_home_page.dart';
 
 class BookingPage extends StatefulWidget {
   const BookingPage({super.key, required this.email, required this.phone});
@@ -13,7 +13,6 @@ class BookingPage extends StatefulWidget {
 class _BookingPageState extends State<BookingPage> {
   Map<String, Map<String, dynamic>> selectedRooms = {};
 
-  // Biến lưu trữ ngày Check-in và Check-out
   DateTime? checkInDate;
   DateTime? checkOutDate;
 
@@ -22,34 +21,6 @@ class _BookingPageState extends State<BookingPage> {
     super.initState();
     checkInDate = DateTime.now();
     checkOutDate = checkInDate!.add(const Duration(days: 1));
-  }
-
-  void selectRoom(String roomName, String price, int quantity) {
-    setState(() {
-      if (quantity > 0) {
-        selectedRooms[roomName] = {'price': price, 'quantity': quantity};
-      } else {
-        selectedRooms.remove(roomName);
-      }
-    });
-  }
-
-  double calculateTotalPrice() {
-    double total = 0.0;
-
-    if (checkInDate != null && checkOutDate != null) {
-      // Tính số ngày giữa Check-in và Check-out
-      int numNights = checkOutDate!.difference(checkInDate!).inDays;
-
-      selectedRooms.forEach((_, details) {
-        double roomPrice =
-            double.parse(details['price'].toString().split(' ')[0]);
-        int quantity = details['quantity'];
-        // Cộng tiền cho từng loại phòng
-        total += roomPrice * numNights * quantity - 10 * (numNights - 1);
-      });
-    }
-    return total;
   }
 
   Future<void> _selectDate(BuildContext context, bool isCheckIn) async {
@@ -65,18 +36,14 @@ class _BookingPageState extends State<BookingPage> {
       firstDate: firstDate,
       lastDate: lastDate,
     );
-
     if (pickedDate != null) {
       setState(() {
         if (isCheckIn) {
           checkInDate = pickedDate;
-
-          // Cập nhật Check-out Date mặc định nếu cần
           if (checkOutDate == null || checkOutDate!.isBefore(checkInDate!)) {
             checkOutDate = checkInDate!.add(const Duration(days: 1));
           }
         } else {
-          // Đảm bảo Check-out lớn hơn Check-in
           if (pickedDate.isAfter(checkInDate!)) {
             checkOutDate = pickedDate;
           } else {
@@ -92,202 +59,105 @@ class _BookingPageState extends State<BookingPage> {
     }
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text("Booking Rooms"),
-      ),
-      body: Stack(
-        children: [
-          ListView(
-            children: [
-              const SizedBox(height: 16),
-              buildRoomCard(
-                context,
-                image: 'assets/image/DeluxeDoubleRoom.png',
-                roomName: 'Deluxe Double Room',
-                price: '100 USD',
-              ),
-              buildRoomCard(
-                context,
-                image: 'assets/image/ExecutiveDoubleRoom.png',
-                roomName: 'Executive Double Room',
-                price: '150 USD',
-              ),
-              buildRoomCard(
-                context,
-                image: 'assets/image/JuniorSuiteDouble.png',
-                roomName: 'Junior Suite Double',
-                price: '200 USD',
-              ),
-              const SizedBox(height: 100),
-            ],
-          ),
-          if (selectedRooms.isNotEmpty)
-            Positioned(
-              bottom: 0,
-              left: 0,
-              right: 0,
-              child: buildPaymentBox(),
-            ),
-        ],
-      ),
-    );
+  double calculateTotalPrice() {
+    double total = 0.0;
+
+    if (checkInDate != null && checkOutDate != null) {
+      int numNights = checkOutDate!.difference(checkInDate!).inDays;
+
+      selectedRooms.forEach((roomName, details) {
+        double roomPrice = details['price'];
+        total += roomPrice * numNights;
+      });
+    }
+    return total;
   }
 
-  Widget buildRoomCard(BuildContext context,
-      {required String image,
-      required String roomName,
-      required String price}) {
-    return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      elevation: 4,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-      child: Row(
-        children: [
-          Image.asset(
-            image,
-            width: 150,
-            height: 100,
-            fit: BoxFit.cover,
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  roomName,
-                  style: const TextStyle(
-                      fontSize: 16, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  'Price: $price',
-                  style: const TextStyle(fontSize: 14, color: Colors.grey),
-                ),
-              ],
+  Widget buildRoomGrid() {
+    List<String> roomTypes = ['DDR', 'EDR', 'JSD'];
+    List<double> roomPrices = [100, 150, 200];
+
+    return GridView.builder(
+      shrinkWrap: true,
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 8, // 8 phòng mỗi tầng
+        childAspectRatio: 1,
+        crossAxisSpacing: 4,
+        mainAxisSpacing: 4,
+      ),
+      itemCount: 64, // Tổng 8 tầng * 8 phòng
+      itemBuilder: (context, index) {
+        int floor = index ~/ 8 + 2;
+        int roomNumber = index % 8 + 1;
+        String roomName = '${roomTypes[floor % 3]} Room $floor-$roomNumber';
+        double roomPrice = roomPrices[floor % 3];
+
+        bool isSelected = selectedRooms.containsKey(roomName);
+
+        return GestureDetector(
+          onTap: () {
+            setState(() {
+              if (isSelected) {
+                selectedRooms.remove(roomName);
+              } else {
+                selectedRooms[roomName] = {
+                  'price': roomPrice,
+                  'quantity': 1,
+                  'type': roomTypes[floor % 3]
+                };
+              }
+            });
+          },
+          child: Container(
+            decoration: BoxDecoration(
+              color: isSelected ? Colors.green : Colors.grey[300],
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: Colors.black),
+            ),
+            child: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    roomName,
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  Text(
+                    '${roomPrice.toStringAsFixed(2)} USD',
+                    style: const TextStyle(
+                      fontSize: 10,
+                      color: Colors.black87,
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
-          const SizedBox(width: 8),
-          buildQuantitySelector(roomName, price),
-        ],
-      ),
-    );
-  }
-
-  Widget buildQuantitySelector(String roomName, String price) {
-    return Row(
-      children: [
-        IconButton(
-          icon: const Icon(Icons.remove),
-          onPressed: () {
-            int currentQuantity = selectedRooms[roomName]?['quantity'] ?? 0;
-            if (currentQuantity > 0) {
-              selectRoom(roomName, price, currentQuantity - 1);
-            }
-          },
-        ),
-        Text(
-          selectedRooms[roomName]?['quantity']?.toString() ?? '0',
-          style: const TextStyle(fontSize: 16),
-        ),
-        IconButton(
-          icon: const Icon(Icons.add),
-          onPressed: () {
-            int currentQuantity = selectedRooms[roomName]?['quantity'] ?? 0;
-            selectRoom(roomName, price, currentQuantity + 1);
-          },
-        ),
-      ],
+        );
+      },
     );
   }
 
   Widget buildPaymentBox() {
-    void showConfirmationDialog(BuildContext context) {
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: const Text('Confirm Your Booking'),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  'Your Booking Details:',
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 8),
-                ...selectedRooms.entries.map((entry) {
-                  String roomName = entry.key;
-                  Map<String, dynamic> details = entry.value;
-                  return Padding(
-                    padding: const EdgeInsets.only(bottom: 4),
-                    child: Text(
-                      '- $roomName: ${details['quantity']} room(s), ${details['price']} each',
-                    ),
-                  );
-                }).toList(),
-                const SizedBox(height: 8),
-                Text(
-                    'Check-in: ${checkInDate != null ? "${checkInDate!.toLocal()}".split(' ')[0] : 'Not selected'}'),
-                Text(
-                    'Check-out: ${checkOutDate != null ? "${checkOutDate!.toLocal()}".split(' ')[0] : 'Not selected'}'),
-                const SizedBox(height: 8),
-                Text(
-                  'Total Price: ${calculateTotalPrice().toStringAsFixed(2)} USD',
-                  style: const TextStyle(fontWeight: FontWeight.bold),
-                ),
-              ],
-            ),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  Navigator.of(context).pop(); // Đóng hộp thoại
-                },
-                child: const Text('Cancel'),
-              ),
-              TextButton(
-                onPressed: () {
-                  Navigator.of(context).pop(); // Đóng hộp thoại
+    Map<String, String> price = {
+      'DDR': '100 USD',
+      'EDR': '150 USD',
+      'JSD': '200 USD'
+    };
+    Map<String, List<String>> groupedRooms = {};
 
-                  // Xử lý thanh toán hoặc chuyển đến bước tiếp theo
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text(
-                          'Payment confirmed! Thank you for your booking.'),
-                      duration: Duration(seconds: 2),
-                    ),
-                  );
-
-                  Navigator.pushAndRemoveUntil(
-                    context,
-                    PageRouteBuilder(
-                      pageBuilder: (context, animation, secondaryAnimation) =>
-                          CustomerHomePage(
-                        email: widget.email,
-                        phone: widget.phone,
-                      ),
-                      transitionsBuilder:
-                          (context, animation, secondaryAnimation, child) {
-                        return FadeTransition(
-                          opacity: animation,
-                          child: child,
-                        );
-                      },
-                    ),
-                    (route) => false,
-                  );
-                },
-                child: const Text('Confirm'),
-              ),
-            ],
-          );
-        },
-      );
-    }
+    // Nhóm các phòng theo loại
+    selectedRooms.forEach((roomName, details) {
+      String roomType = details['type'];
+      if (!groupedRooms.containsKey(roomType)) {
+        groupedRooms[roomType] = [];
+      }
+      groupedRooms[roomType]!.add(roomName);
+    });
 
     return Column(
       children: [
@@ -306,13 +176,14 @@ class _BookingPageState extends State<BookingPage> {
                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 8),
-                ...selectedRooms.entries.map((entry) {
-                  String roomName = entry.key;
-                  Map<String, dynamic> details = entry.value;
+                ...groupedRooms.entries.map((entry) {
+                  String roomType = entry.key;
+                  List<String> rooms = entry.value;
                   return Padding(
-                    padding: const EdgeInsets.only(bottom: 4),
+                    padding: const EdgeInsets.only(bottom: 8),
                     child: Text(
-                      '$roomName - ${details['quantity']} room(s) - ${details['price']} each',
+                      '$roomType-${price[roomType]}: ${rooms.join(", ")}',
+                      style: const TextStyle(fontSize: 14),
                     ),
                   );
                 }).toList(),
@@ -373,9 +244,65 @@ class _BookingPageState extends State<BookingPage> {
           ),
         ),
         ElevatedButton(
-            onPressed: () => showConfirmationDialog(context),
-            child: Text('Proceed payment'))
+          onPressed: () {
+            showDialog(
+              context: context,
+              builder: (BuildContext context) {
+                return AlertDialog(
+                  title: const Text('Confirm Booking'),
+                  content: const Text(
+                      'Are you sure you want to confirm the booking?'),
+                  actions: [
+                    TextButton(
+                      onPressed: () {
+                        // Đóng hộp thoại khi khách chọn "No"
+                        Navigator.of(context).pop();
+                      },
+                      child: const Text('No'),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        // Hiển thị thông báo đặt phòng thành công và chuyển trang
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Booking confirmed! Thank you.'),
+                            duration: Duration(seconds: 2),
+                          ),
+                        );
+                        Navigator.of(context).pop(); // Đóng hộp thoại
+                        Navigator.of(context).pop(); //đóng booking page
+                      },
+                      child: const Text('Yes'),
+                    ),
+                  ],
+                );
+              },
+            );
+          },
+          child: const Text('Confirm Booking'),
+        ),
       ],
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      resizeToAvoidBottomInset: false,
+      appBar: AppBar(
+        title: const Text("Booking Rooms"),
+      ),
+      body: Column(
+        children: [
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: buildRoomGrid(),
+            ),
+          ),
+          if (selectedRooms.isNotEmpty) buildPaymentBox(),
+        ],
+      ),
     );
   }
 }

@@ -1,136 +1,167 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_2/booking_page.dart';
 import 'package:flutter_2/customer_home_page.dart';
 
 class DetailsPage extends StatefulWidget {
-  final String type;
+  final String type; // Loại phòng
   final String email;
   final String phone;
-  const DetailsPage(
-      {super.key,
-      required this.type,
-      required this.email,
-      required this.phone});
+
+  const DetailsPage({
+    Key? key,
+    required this.type,
+    required this.email,
+    required this.phone,
+  }) : super(key: key);
 
   @override
   State<DetailsPage> createState() => _DetailsPageState();
 }
 
 class _DetailsPageState extends State<DetailsPage> {
+  Map<String, dynamic>? selectedRoom; // Lưu thông tin phòng được chọn
+  bool isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    loadRoomData();
+  }
+
+  Future<void> loadRoomData() async {
+    try {
+      // Đọc file JSON từ thư mục assets
+      final String jsonString =
+          await rootBundle.loadString('assets/data/room_types.json');
+      final List<dynamic> data = jsonDecode(jsonString);
+
+      // Tìm thông tin phòng theo `type_name`
+      final room = data.firstWhere(
+        (room) => room['type_name'] == widget.type,
+        orElse: () => null,
+      );
+
+      setState(() {
+        selectedRoom = room; // Lưu thông tin phòng tìm được
+        isLoading = false;
+      });
+    } catch (e) {
+      debugPrint('Error loading room data: $e');
+      setState(() {
+        selectedRoom = null; // Nếu xảy ra lỗi, đặt thông tin phòng là null
+        isLoading = false;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    String impath;
-    String details = 'details for now';
-    if (widget.type == "Deluxe") {
-      impath = 'assets/image/DeluxeDoubleRoom.png';
-      details = 'details for now';
-    } else if (widget.type == "Executive") {
-      impath = 'assets/image/ExecutiveDoubleRoom.png';
-      details = 'details for now';
-    } else {
-      impath = 'assets/image/JuniorSuiteDouble.png';
-      details = 'details for now';
-    }
     return Scaffold(
       appBar: AppBar(
+        toolbarHeight: 80,
+        centerTitle: true,
         title: const Text(
-          'Details',
-          style: TextStyle(fontSize: 32, color: Color(0xFFFFFFF0)),
+          'DETAILS',
+          style: TextStyle(color: Color(0xFFFFFFF0)),
+        ),
+        iconTheme: const IconThemeData(color: Color(0xFFFFFFF0)),
+        leading: Transform.scale(
+          scale: 1.5,
+          child: TextButton(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => CustomerHomePage(
+                    email: widget.email,
+                    phone: widget.phone,
+                  ),
+                ),
+              );
+            },
+            child: const Text(
+              'HOME', // Chữ hiển thị
+              style: TextStyle(
+                color: Color(0xfffffff0),
+                fontSize: 10, // Kích thước chữ
+              ),
+            ),
+          ),
         ),
         backgroundColor: const Color.fromARGB(255, 3, 33, 22),
-        actions: <Widget>[
-          // Các nút điều hướng
-          TextButton(
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => CustomerHomePage(
-                    email: widget.email,
-                    phone: widget.phone,
-                  ),
-                ),
-              );
-            },
-            child: const Text(
-              'HOME',
-              style: TextStyle(color: Color(0xFFFFFFF0)),
-            ),
-          ),
-          TextButton(
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => CustomerHomePage(
-                    email: widget.email,
-                    phone: widget.phone,
-                  ),
-                ),
-              );
-            },
-            child: const Text(
-              'HOME',
-              style: TextStyle(color: Color(0xFFFFFFF0)),
-            ),
-          )
-        ],
       ),
-      body: Row(
-        children: [
-          const SizedBox(
-            width: 100,
-          ),
-          Image.asset(
-            impath, // Đường dẫn tới hình ảnh
-            width: 600, // Đặt kích thước tùy ý
-            height: 600,
-            fit: BoxFit.cover, // Cách hiển thị hình ảnh
-          ),
-          const SizedBox(
-            width: 100,
-          ),
-          Column(
-            children: [
-              SizedBox(
-                height: 600,
-                child: Text(details,
-                    style: const TextStyle(
-                        color: Color.fromARGB(255, 3, 33, 22), fontSize: 20)),
-              ),
-              SizedBox(
-                width: 200,
-                height: 60,
-                child: TextButton(
-                  style: TextButton.styleFrom(
-                    shape: const RoundedRectangleBorder(
-                      // Hình dạng nút
-                      borderRadius: BorderRadius
-                          .zero, // Bo tròn bằng 0 để tạo hình chữ nhật
-                    ),
-                    backgroundColor: const Color.fromARGB(255, 3, 33, 22),
-                  ),
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => BookingPage(
-                          email: widget.email,
-                          phone: widget.phone,
+      body: isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : selectedRoom != null
+              ? Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Image.asset(
+                        'assets/image/${selectedRoom!['type_name']}.png',
+                        width: 700,
+                        height: 400,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) {
+                          return const Icon(Icons.broken_image, size: 100);
+                        },
+                      ),
+                      const SizedBox(height: 20),
+                      const Text(
+                        'Room details',
+                        style: TextStyle(fontSize: 30),
+                      ),
+                      const SizedBox(height: 10),
+                      Text(
+                        'Type: ${selectedRoom!['type_name']}',
+                        style: const TextStyle(fontSize: 18),
+                      ),
+                      const SizedBox(height: 5),
+                      Text(
+                        'Price: ${selectedRoom!['price']}',
+                        style: const TextStyle(fontSize: 18),
+                      ),
+                      const SizedBox(height: 5),
+                      Text(
+                        'Description: ${selectedRoom!['description']}',
+                        style: const TextStyle(fontSize: 18),
+                      ),
+                      const Spacer(),
+                      Center(
+                        child: ElevatedButton(
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => BookingPage(
+                                        email: widget.email,
+                                        phone: widget.phone,
+                                      )),
+                            );
+                          },
+                          style: ElevatedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(
+                                vertical: 15, horizontal: 30),
+                            backgroundColor:
+                                const Color.fromARGB(255, 3, 33, 22),
+                          ),
+                          child: const Text(
+                            'Book now',
+                            style: TextStyle(fontSize: 20, color: Colors.white),
+                          ),
                         ),
                       ),
-                    );
-                  },
-                  child: const Text(
-                    'Book now',
-                    style: TextStyle(fontSize: 20, color: Color(0xFFFFFFF0)),
+                    ],
+                  ),
+                )
+              : Center(
+                  child: Text(
+                    'Room details not found!',
                   ),
                 ),
-              ),
-            ],
-          )
-        ],
-      ),
     );
   }
 }

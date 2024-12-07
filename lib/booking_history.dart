@@ -97,7 +97,8 @@ class _BookingHistoryState extends State<BookingHistory> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Text("No booking history available"),
+                      const Text(
+                          "No booking history available, book some rooms now :)"),
                       const SizedBox(height: 16),
                       ElevatedButton(
                         onPressed: loadData,
