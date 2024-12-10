@@ -2,23 +2,23 @@
     "customers": [
       {
         "email": "john.doe@example.com",
-        "phone": "1234567890"
+        "password": "1234567890"
       },
       {
         "email": "jane.smith@example.com",
-        "phone": "9876543210"
+        "password": "9876543210"
       },
       {
         "email": "michael.jones@example.com",
-        "phone": "5551234567"
+        "password": "5551234567"
       },
       {
         "email": "susan.lee@example.com",
-        "phone": "5559876543"
+        "password": "5559876543"
       },
       {
         "email":"theanh@gmail.com",
-        "phone":"123456"
+        "password":"123456"
       }
     ]
   }
