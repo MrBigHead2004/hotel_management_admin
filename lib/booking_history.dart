@@ -1,11 +1,14 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_2/booking_page.dart';
+import 'package:flutter_2/customer_home_page.dart';
 
 class BookingHistory extends StatefulWidget {
   final String email;
-  final String phone;
-  const BookingHistory({super.key, required this.email, required this.phone});
+  final String password;
+  const BookingHistory(
+      {super.key, required this.email, required this.password});
 
   @override
   State<BookingHistory> createState() => _BookingHistoryState();
@@ -36,7 +39,8 @@ class _BookingHistoryState extends State<BookingHistory> {
         // Tìm khách hàng khớp với email và phone
         final customer = customers.firstWhere(
           (cust) =>
-              cust['email'] == widget.email && cust['phone'] == widget.phone,
+              cust['email'] == widget.email &&
+              cust['password'] == widget.password,
           orElse: () => {},
         );
 
@@ -73,7 +77,7 @@ class _BookingHistoryState extends State<BookingHistory> {
     }
   }
 
-  bool getHistory(String email, String phone) {
+  bool getHistory(String email, String password) {
     return bookingHistory.isEmpty;
   }
 
@@ -87,7 +91,57 @@ class _BookingHistoryState extends State<BookingHistory> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Booking History"),
+        toolbarHeight: 80,
+        centerTitle: true,
+        title: const Text(
+          'Hotel IT3180',
+          style: TextStyle(color: Color(0xFFFFFFF0), fontSize: 40),
+        ),
+        iconTheme: const IconThemeData(color: Color(0xFFFFFFF0)),
+        leading: Transform.scale(
+          scale: 1.5,
+          child: TextButton(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => CustomerHomePage(
+                    email: widget.email,
+                    password: widget.password,
+                  ),
+                ),
+              );
+            },
+            child: const Text(
+              'HOME', // Chữ hiển thị
+              style: TextStyle(
+                color: Color(0xfffffff0),
+                fontSize: 10, // Kích thước chữ
+              ),
+            ),
+          ),
+        ),
+        actions: <Widget>[
+          // Các nút điều hướng
+          TextButton(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => BookingPage(
+                    email: widget.email,
+                    password: widget.password,
+                  ),
+                ),
+              );
+            },
+            child: const Text(
+              'BOOK',
+              style: TextStyle(color: Color(0xFFFFFFF0)),
+            ),
+          ),
+        ],
+        backgroundColor: const Color.fromARGB(255, 3, 33, 22),
       ),
       body: isLoading
           ? const Center(

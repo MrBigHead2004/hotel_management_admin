@@ -8,9 +8,10 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 
 class CustomerHomePage extends StatefulWidget {
-  const CustomerHomePage({super.key, required this.email, required this.phone});
+  const CustomerHomePage(
+      {super.key, required this.email, required this.password});
   final String email;
-  final String phone;
+  final String password;
   @override
   State<CustomerHomePage> createState() => _CustomerHomePageState();
 }
@@ -39,7 +40,7 @@ class _CustomerHomePageState extends State<CustomerHomePage> {
                   MaterialPageRoute(
                     builder: (context) => CustomerHomePage(
                       email: widget.email,
-                      phone: widget.phone,
+                      password: widget.password,
                     ),
                   ),
                 );
@@ -62,7 +63,7 @@ class _CustomerHomePageState extends State<CustomerHomePage> {
                   MaterialPageRoute(
                     builder: (context) => BookingPage(
                       email: widget.email,
-                      phone: widget.phone,
+                      password: widget.password,
                     ),
                   ),
                 );
@@ -79,7 +80,7 @@ class _CustomerHomePageState extends State<CustomerHomePage> {
                   MaterialPageRoute(
                     builder: (context) => BookingHistory(
                       email: widget.email,
-                      phone: widget.phone,
+                      password: widget.password,
                     ),
                   ),
                 );
@@ -169,7 +170,7 @@ class _CustomerHomePageState extends State<CustomerHomePage> {
                                                 builder: (context) =>
                                                     BookingPage(
                                                       email: widget.email,
-                                                      phone: widget.phone,
+                                                      password: widget.password,
                                                     )),
                                           );
                                         },
@@ -191,7 +192,7 @@ class _CustomerHomePageState extends State<CustomerHomePage> {
                                                     DetailsPage(
                                                       type: 'DeluxeDouble',
                                                       email: widget.email,
-                                                      phone: widget.phone,
+                                                      password: widget.password,
                                                     )),
                                           );
                                         },
@@ -254,7 +255,7 @@ class _CustomerHomePageState extends State<CustomerHomePage> {
                                                 builder: (context) =>
                                                     BookingPage(
                                                       email: widget.email,
-                                                      phone: widget.phone,
+                                                      password: widget.password,
                                                     )),
                                           );
                                         },
@@ -276,7 +277,7 @@ class _CustomerHomePageState extends State<CustomerHomePage> {
                                                     DetailsPage(
                                                       type: 'ExecutiveDouble',
                                                       email: widget.email,
-                                                      phone: widget.phone,
+                                                      password: widget.password,
                                                     )),
                                           );
                                         },
@@ -341,7 +342,7 @@ class _CustomerHomePageState extends State<CustomerHomePage> {
                                                 builder: (context) =>
                                                     BookingPage(
                                                       email: widget.email,
-                                                      phone: widget.phone,
+                                                      password: widget.password,
                                                     )),
                                           );
                                         },
@@ -363,7 +364,7 @@ class _CustomerHomePageState extends State<CustomerHomePage> {
                                                     DetailsPage(
                                                       type: 'JuniorSuiteDouble',
                                                       email: widget.email,
-                                                      phone: widget.phone,
+                                                      password: widget.password,
                                                     )),
                                           );
                                         },
@@ -486,7 +487,7 @@ class _CustomerHomePageState extends State<CustomerHomePage> {
                                                 builder: (context) =>
                                                     ComVangRestaurantPage(
                                                       email: widget.email,
-                                                      phone: widget.phone,
+                                                      password: widget.password,
                                                     )),
                                           );
                                         },
@@ -581,7 +582,7 @@ class _CustomerHomePageState extends State<CustomerHomePage> {
                                               builder: (context) =>
                                                   GardenLongeBarPage(
                                                     email: widget.email,
-                                                    phone: widget.phone,
+                                                    password: widget.password,
                                                   )),
                                         );
                                       },

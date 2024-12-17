@@ -1,77 +1,106 @@
 import 'package:flutter/material.dart';
-import 'dart:html' as html;
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 void main() {
-  runApp(const MyApp());
+  runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
-      title: 'Demo',
+    return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: FirstPage(),
+      home: InfoScreen(),
     );
   }
 }
 
-class FirstPage extends StatelessWidget {
-  const FirstPage({super.key});
+class InfoScreen extends StatefulWidget {
+  @override
+  _InfoScreenState createState() => _InfoScreenState();
+}
+
+class _InfoScreenState extends State<InfoScreen> {
+  List<dynamic> _data = []; // Danh sách dữ liệu từ API
+  bool _isLoading = false;
+  String _errorMessage = "";
+
+  Future<void> fetchData() async {
+    final url = Uri.parse("http://10.13.47.160:8000/api/rooms/");
+
+    setState(() {
+      _isLoading = true;
+      _errorMessage = "";
+    });
+
+    try {
+      final response = await http.get(url);
+
+      // Log thông tin phản hồi từ API
+      print("Status Code: ${response.statusCode}");
+      print("Response Body: ${response.body}");
+
+      if (response.statusCode == 200) {
+        // Parse JSON
+        final List<dynamic> data = jsonDecode(response.body);
+        setState(() {
+          _data = data;
+        });
+      } else {
+        setState(() {
+          _errorMessage = "Không thể tải dữ liệu: ${response.statusCode}";
+        });
+      }
+    } catch (error) {
+      // Log lỗi nếu xảy ra exception
+      print("Error: $error");
+
+      setState(() {
+        _errorMessage = "Có lỗi xảy ra: $error";
+      });
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    fetchData();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Flutter Web App"),
+        title: Text("Thông tin API"),
       ),
-      body: LayoutBuilder(
-        builder: (context, constraints) {
-          double width = constraints.maxWidth;
-          double height = constraints.maxHeight;
-
-          // Kiểm tra nếu kích thước chiều ngang của cửa sổ nhỏ hơn giá trị tối thiểu
-          if (width < 800) {
-            // Đặt kích thước tối thiểu cho chiều ngang
-            width = 800;
-          }
-
-          if (height < 400) {
-            // Đặt kích thước tối thiểu cho chiều cao
-            height = 400;
-          }
-
-          // Trả về widget với kích thước đã được điều chỉnh
-          return Center(
-            child: Container(
-              width: width,
-              height: height,
-              color: Colors.blue,
-              child: const SizedBox(
-                height: 400,
-                child: Text(
-                  "dnkfnkdajskfnadsnkjfkrewjfkjewjfkjejfkrejfkjkerjwfjrkejfkjrjfk",
-                  style: TextStyle(fontSize: 50),
+      body: _isLoading
+          ? Center(child: CircularProgressIndicator())
+          : _errorMessage.isNotEmpty
+              ? Center(
+                  child: Text(
+                    _errorMessage,
+                    style: TextStyle(color: Colors.red),
+                  ),
+                )
+              : ListView.builder(
+                  itemCount: _data.length,
+                  itemBuilder: (context, index) {
+                    final item = _data[index];
+                    return ListTile(
+                      title: Text(item['name'] ?? "No Name"),
+                      subtitle: Text(item['description'] ?? "No Description"),
+                    );
+                  },
                 ),
-              ),
-            ),
-          );
-        },
+      floatingActionButton: FloatingActionButton(
+        onPressed: fetchData,
+        child: Icon(Icons.refresh),
       ),
     );
   }
 }
-
-
-// FloatingActionButton(
-            //   heroTag: 'uniqueTag1',
-            //   onPressed: () {
-            //     _scrollController.animateTo(0,
-            //         duration: const Duration(seconds: 1),
-            //         curve: Curves.easeInOut);
-            //   },
-            //   backgroundColor: Colors.white, // Màu của nút cuộn lên trên
-            //   child: const Icon(Icons.arrow_upward),
-            // ),

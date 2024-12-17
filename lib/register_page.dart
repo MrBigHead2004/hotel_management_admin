@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert'; // Dùng để xử lý JSON
 import 'package:flutter_2/customer_home_page.dart';
 import 'package:flutter_2/customer_login_page.dart';
 
@@ -13,20 +15,71 @@ class _RegisterPageState extends State<RegisterPage> {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController phoneController = TextEditingController();
   final TextEditingController nameController = TextEditingController();
-  DateTime? selectedDate;
+  final TextEditingController passwordController = TextEditingController();
 
-  // Hàm để chọn ngày sinh
-  Future<void> _selectDate(BuildContext context) async {
-    final DateTime? picked = await showDatePicker(
-      context: context,
-      initialDate: selectedDate ?? DateTime.now(),
-      firstDate: DateTime(1900),
-      lastDate: DateTime.now(),
-    );
-    if (picked != null && picked != selectedDate) {
-      setState(() {
-        selectedDate = picked;
-      });
+  // Hàm gửi yêu cầu đăng ký đến backend
+  Future<void> registerUser() async {
+    final String email = emailController.text;
+    final String phone = phoneController.text;
+    final String name = nameController.text;
+    final String password = passwordController.text;
+
+    if (email.isNotEmpty &&
+        phone.isNotEmpty &&
+        name.isNotEmpty &&
+        password.isNotEmpty) {
+      // Dữ liệu để gửi đến API
+      final Map<String, String> userData = {
+        'email': email,
+        'phone_number': phone,
+        'username': name,
+        'password': password,
+      };
+
+      try {
+        final response = await http.post(
+          Uri.parse(
+              "http://10.13.48.244:8000/users/register/"), // Thay URL API của bạn
+          headers: {'Content-Type': 'application/json'},
+          body: jsonEncode(userData),
+        );
+
+        if (response.statusCode == 201) {
+          // Đăng ký thành công
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Registration Successful')),
+          );
+          Navigator.pushAndRemoveUntil(
+            context,
+            PageRouteBuilder(
+              pageBuilder: (context, animation, secondaryAnimation) =>
+                  CustomerHomePage(email: email, password: password),
+              transitionsBuilder:
+                  (context, animation, secondaryAnimation, child) {
+                return FadeTransition(
+                  opacity: animation,
+                  child: child,
+                );
+              },
+            ),
+            (route) => false,
+          );
+        } else {
+          // Lỗi từ API
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Registration Failed: ${response.body}')),
+          );
+        }
+      } catch (e) {
+        // Lỗi kết nối
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error: $e')),
+        );
+      }
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please fill all fields')),
+      );
     }
   }
 
@@ -52,17 +105,17 @@ class _RegisterPageState extends State<RegisterPage> {
               // Trường nhập email
               TextField(
                 controller: emailController,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   labelText: 'Email',
                   border: OutlineInputBorder(),
                 ),
               ),
               const SizedBox(height: 20),
 
-              // Trường nhập phone
+              // Trường nhập số điện thoại
               TextField(
                 controller: phoneController,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   labelText: 'Phone Number',
                   border: OutlineInputBorder(),
                 ),
@@ -70,91 +123,44 @@ class _RegisterPageState extends State<RegisterPage> {
               ),
               const SizedBox(height: 20),
 
-              // Trường nhập name
+              // Trường nhập tên
               TextField(
                 controller: nameController,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   labelText: 'Full Name',
                   border: OutlineInputBorder(),
                 ),
               ),
               const SizedBox(height: 20),
 
-              // Trường chọn ngày sinh
-              Row(
-                children: [
-                  const Text("Birth of Date: "),
-                  const SizedBox(width: 10),
-                  Text(
-                    selectedDate == null
-                        ? 'No Date Chosen!'
-                        : '${selectedDate!.toLocal()}'.split(' ')[0],
-                    style: const TextStyle(fontSize: 16),
-                  ),
-                  const Spacer(),
-                  TextButton(
-                    onPressed: () => _selectDate(context),
-                    child: const Text("Pick a Date"),
-                  ),
-                ],
+              // Trường nhập mật khẩu
+              TextField(
+                controller: passwordController,
+                obscureText: true, // Ẩn nội dung nhập vào
+                decoration: const InputDecoration(
+                  labelText: 'Password',
+                  border: OutlineInputBorder(),
+                ),
               ),
               const SizedBox(height: 20),
 
               // Nút đăng ký
               ElevatedButton(
-                onPressed: () {
-                  // Xử lý đăng ký ở đây
-                  String email = emailController.text;
-                  String phone = phoneController.text;
-                  String name = nameController.text;
-
-                  if (email.isNotEmpty &&
-                      phone.isNotEmpty &&
-                      name.isNotEmpty &&
-                      selectedDate != null) {
-                    // Gửi dữ liệu hoặc lưu thông tin người dùng
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Registration Successful')),
-                    );
-                    Navigator.pushAndRemoveUntil(
-                      context,
-                      PageRouteBuilder(
-                        pageBuilder: (context, animation, secondaryAnimation) =>
-                            CustomerHomePage(
-                          email: email,
-                          phone: phone,
-                        ),
-                        transitionsBuilder:
-                            (context, animation, secondaryAnimation, child) {
-                          return FadeTransition(
-                            opacity: animation,
-                            child: child,
-                          );
-                        },
-                      ),
-                      (route) => false,
-                    );
-                    // Điều hướng đến trang tiếp theo
-                  } else {
-                    // Thông báo lỗi nếu có trường trống
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Please fill all fields')),
-                    );
-                  }
-                },
+                onPressed: registerUser,
                 child: const Text('Register'),
               ),
-              const Text('already has an account ?'),
+              const Text('Already have an account?'),
               ElevatedButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const CustomerLoginPage(),
-                      ),
-                    );
-                  },
-                  child: const Text('login here'))
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const CustomerLoginPage(),
+                    ),
+                  );
+                },
+                child: const Text('Login Here'),
+              ),
             ],
           ),
         ),

@@ -7,13 +7,13 @@ import 'package:flutter_2/customer_home_page.dart';
 class DetailsPage extends StatefulWidget {
   final String type; // Loại phòng
   final String email;
-  final String phone;
+  final String password;
 
   const DetailsPage({
     Key? key,
     required this.type,
     required this.email,
-    required this.phone,
+    required this.password,
   }) : super(key: key);
 
   @override
@@ -59,6 +59,7 @@ class _DetailsPageState extends State<DetailsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       appBar: AppBar(
         toolbarHeight: 80,
         centerTitle: true,
@@ -76,7 +77,7 @@ class _DetailsPageState extends State<DetailsPage> {
                 MaterialPageRoute(
                   builder: (context) => CustomerHomePage(
                     email: widget.email,
-                    phone: widget.phone,
+                    password: widget.password,
                   ),
                 ),
               );
@@ -95,69 +96,73 @@ class _DetailsPageState extends State<DetailsPage> {
       body: isLoading
           ? const Center(child: CircularProgressIndicator())
           : selectedRoom != null
-              ? Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Image.asset(
-                        'assets/image/${selectedRoom!['type_name']}.png',
-                        width: 700,
-                        height: 400,
-                        fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) {
-                          return const Icon(Icons.broken_image, size: 100);
-                        },
-                      ),
-                      const SizedBox(height: 20),
-                      const Text(
-                        'Room details',
-                        style: TextStyle(fontSize: 30),
-                      ),
-                      const SizedBox(height: 10),
-                      Text(
-                        'Type: ${selectedRoom!['type_name']}',
-                        style: const TextStyle(fontSize: 18),
-                      ),
-                      const SizedBox(height: 5),
-                      Text(
-                        'Price: ${selectedRoom!['price']}',
-                        style: const TextStyle(fontSize: 18),
-                      ),
-                      const SizedBox(height: 5),
-                      Text(
-                        'Description: ${selectedRoom!['description']}',
-                        style: const TextStyle(fontSize: 18),
-                      ),
-                      const Spacer(),
-                      Center(
-                        child: ElevatedButton(
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => BookingPage(
-                                        email: widget.email,
-                                        phone: widget.phone,
-                                      )),
-                            );
+              ? SingleChildScrollView(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Image.asset(
+                          'assets/image/${selectedRoom!['type_name']}.png',
+                          width: MediaQuery.of(context).size.width * 0.4,
+                          height: MediaQuery.of(context).size.height * 0.5,
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) {
+                            return const Icon(Icons.broken_image, size: 100);
                           },
-                          style: ElevatedButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(
-                                vertical: 15, horizontal: 30),
-                            backgroundColor:
-                                const Color.fromARGB(255, 3, 33, 22),
-                          ),
-                          child: const Text(
-                            'Book now',
-                            style: TextStyle(fontSize: 20, color: Colors.white),
+                        ),
+                        const SizedBox(height: 20),
+                        const Text(
+                          'Room details',
+                          style: TextStyle(fontSize: 30),
+                        ),
+                        const SizedBox(height: 10),
+                        Text(
+                          'Type: ${selectedRoom!['type_name']}',
+                          style: const TextStyle(fontSize: 18),
+                        ),
+                        const SizedBox(height: 5),
+                        Text(
+                          'Price: ${selectedRoom!['price']}',
+                          style: const TextStyle(fontSize: 18),
+                        ),
+                        const SizedBox(height: 5),
+                        Text(
+                          'Description: ${selectedRoom!['description']}',
+                          style: const TextStyle(fontSize: 18),
+                        ),
+                        const SizedBox(height: 30), // Thay Spacer bằng SizedBox
+                        Center(
+                          child: ElevatedButton(
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => BookingPage(
+                                    email: widget.email,
+                                    password: widget.password,
+                                  ),
+                                ),
+                              );
+                            },
+                            style: ElevatedButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(
+                                  vertical: 15, horizontal: 30),
+                              backgroundColor:
+                                  const Color.fromARGB(255, 3, 33, 22),
+                            ),
+                            child: const Text(
+                              'Book now',
+                              style:
+                                  TextStyle(fontSize: 20, color: Colors.white),
+                            ),
                           ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 )
-              : Center(
+              : const Center(
                   child: Text(
                     'Room details not found!',
                   ),

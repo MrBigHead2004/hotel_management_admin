@@ -15,35 +15,50 @@ class _CustomerLoginPageState extends State<CustomerLoginPage> {
   final TextEditingController passwordController = TextEditingController();
 
   // Hàm tải dữ liệu khách hàng từ GitHub
+  Future<List<Map<String, String>>> loadCustomers() async {
+    final response = await http.get(Uri.parse(
+        'https://raw.githubusercontent.com/nttheanh404/testdata/refs/heads/main/customers.json'));
+
+    if (response.statusCode == 200) {
+      List<dynamic> customers = json.decode(response.body)['customers'];
+
+      return customers.map<Map<String, String>>((customer) {
+        return {
+          'email': customer['email'],
+          'password': customer['password'],
+        };
+      }).toList();
+    } else {
+      throw Exception('Failed to load customers data');
+    }
+  }
+
+  // Hàm kiểm tra đăng nhập cho khách hàng
   Future<void> checkCustomerLogin() async {
+    List<Map<String, String>> customers = await loadCustomers();
+
     String inputEmail = emailController.text;
     String inputPassword = passwordController.text;
 
-    // Gửi yêu cầu đăng nhập tới backend Django
-    final response = await http.post(
-      Uri.parse('http://10.13.48.244:8000/users/login/'), // URL backend Django
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: json.encode({
-        'username': inputEmail,
-        'password': inputPassword,
-      }),
-    );
+    bool isValid = customers.any((customer) {
+      return customer['email'] == inputEmail &&
+          customer['password'] == inputPassword;
+    });
 
-    if (response.statusCode == 200) {
-      // Giả sử API trả về thông tin người dùng
-      var responseData = json.decode(response.body);
-      String email = responseData['email']; // email từ response backend
-
-      // Nếu đăng nhập thành công, chuyển sang trang khách hàng
+    if (isValid) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Chào mừng, $inputEmail!'),
+          duration: Duration(seconds: 3),
+        ),
+      );
       Navigator.pushAndRemoveUntil(
         context,
         PageRouteBuilder(
           pageBuilder: (context, animation, secondaryAnimation) =>
               CustomerHomePage(
-            email: email,
-            password: inputPassword, // Cũng có thể lấy mật khẩu nếu cần
+            email: inputEmail,
+            password: inputPassword,
           ),
           transitionsBuilder: (context, animation, secondaryAnimation, child) {
             return FadeTransition(
@@ -55,7 +70,6 @@ class _CustomerLoginPageState extends State<CustomerLoginPage> {
         (route) => false,
       );
     } else {
-      // Nếu đăng nhập thất bại, hiển thị thông báo lỗi
       showDialog(
         context: context,
         builder: (context) {

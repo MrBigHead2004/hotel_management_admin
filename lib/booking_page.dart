@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_2/booking_history.dart';
+import 'package:flutter_2/customer_home_page.dart';
 // import 'package:flutter_2/customer_home_page.dart';
 
 class BookingPage extends StatefulWidget {
-  const BookingPage({super.key, required this.email, required this.phone});
+  const BookingPage({super.key, required this.email, required this.password});
   final String email;
-  final String phone;
+  final String password;
 
   @override
   State<BookingPage> createState() => _BookingPageState();
@@ -270,7 +272,16 @@ class _BookingPageState extends State<BookingPage> {
                           ),
                         );
                         Navigator.of(context).pop(); // Đóng hộp thoại
-                        Navigator.of(context).pop(); //đóng booking page
+                        Navigator.pushAndRemoveUntil(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => CustomerHomePage(
+                              email: widget.email,
+                              password: widget.password,
+                            ),
+                          ),
+                          (route) => false,
+                        ); //đóng booking page
                       },
                       child: const Text('Yes'),
                     ),
@@ -290,7 +301,58 @@ class _BookingPageState extends State<BookingPage> {
     return Scaffold(
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
-        title: const Text("Booking Rooms"),
+        toolbarHeight: 80,
+        centerTitle: true,
+        title: const Text(
+          'Hotel IT3180',
+          style: TextStyle(color: Color(0xFFFFFFF0), fontSize: 40),
+        ),
+        iconTheme: const IconThemeData(color: Color(0xFFFFFFF0)),
+        leading: Transform.scale(
+          scale: 1.5,
+          child: TextButton(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => CustomerHomePage(
+                    email: widget.email,
+                    password: widget.password,
+                  ),
+                ),
+              );
+            },
+            child: const Text(
+              'HOME', // Chữ hiển thị
+              style: TextStyle(
+                color: Color(0xfffffff0),
+                fontSize: 10, // Kích thước chữ
+              ),
+            ),
+          ),
+        ),
+        actions: <Widget>[
+          // Các nút điều hướng
+
+          TextButton(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => BookingHistory(
+                    email: widget.email,
+                    password: widget.password,
+                  ),
+                ),
+              );
+            },
+            child: const Text(
+              'HISTORY',
+              style: TextStyle(color: Color(0xFFFFFFF0)),
+            ),
+          )
+        ],
+        backgroundColor: const Color.fromARGB(255, 3, 33, 22),
       ),
       body: Column(
         children: [

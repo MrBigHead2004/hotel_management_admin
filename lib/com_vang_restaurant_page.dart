@@ -6,9 +6,9 @@ import 'package:flutter_2/garden_longe_bar_page.dart';
 
 class ComVangRestaurantPage extends StatefulWidget {
   const ComVangRestaurantPage(
-      {super.key, required this.email, required this.phone});
+      {super.key, required this.email, required this.password});
   final String email;
-  final String phone;
+  final String password;
 
   @override
   State<ComVangRestaurantPage> createState() => _ComVangRestaurantPageState();
@@ -36,7 +36,7 @@ class _ComVangRestaurantPageState extends State<ComVangRestaurantPage> {
                   MaterialPageRoute(
                     builder: (context) => CustomerHomePage(
                       email: widget.email,
-                      phone: widget.phone,
+                      password: widget.password,
                     ),
                   ),
                 );
@@ -59,7 +59,7 @@ class _ComVangRestaurantPageState extends State<ComVangRestaurantPage> {
                   MaterialPageRoute(
                     builder: (context) => BookingPage(
                       email: widget.email,
-                      phone: widget.phone,
+                      password: widget.password,
                     ),
                   ),
                 );
@@ -76,7 +76,7 @@ class _ComVangRestaurantPageState extends State<ComVangRestaurantPage> {
                   MaterialPageRoute(
                     builder: (context) => BookingHistory(
                       email: widget.email,
-                      phone: widget.phone,
+                      password: widget.password,
                     ),
                   ),
                 );
@@ -186,7 +186,7 @@ class _ComVangRestaurantPageState extends State<ComVangRestaurantPage> {
                             ),
                             const SizedBox(height: 20),
                             const Text(
-                              '+84 852236540',
+                              '+84 852236541',
                               style:
                                   TextStyle(color: Colors.black, fontSize: 20),
                             ),
@@ -574,7 +574,7 @@ class _ComVangRestaurantPageState extends State<ComVangRestaurantPage> {
                               MaterialPageRoute(
                                   builder: (context) => GardenLongeBarPage(
                                         email: widget.email,
-                                        phone: widget.phone,
+                                        password: widget.password,
                                       )),
                             );
                           },

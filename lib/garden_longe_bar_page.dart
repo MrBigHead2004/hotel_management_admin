@@ -7,9 +7,9 @@ import 'package:flutter_2/customer_home_page.dart';
 //import 'dart:html' as html;
 class GardenLongeBarPage extends StatefulWidget {
   const GardenLongeBarPage(
-      {super.key, required this.email, required this.phone});
+      {super.key, required this.email, required this.password});
   final String email;
-  final String phone;
+  final String password;
 
   @override
   State<GardenLongeBarPage> createState() => _GardenLongeBarPageState();
@@ -40,7 +40,7 @@ class _GardenLongeBarPageState extends State<GardenLongeBarPage> {
                   MaterialPageRoute(
                     builder: (context) => CustomerHomePage(
                       email: widget.email,
-                      phone: widget.phone,
+                      password: widget.password,
                     ),
                   ),
                 );
@@ -63,7 +63,7 @@ class _GardenLongeBarPageState extends State<GardenLongeBarPage> {
                   MaterialPageRoute(
                     builder: (context) => BookingPage(
                       email: widget.email,
-                      phone: widget.phone,
+                      password: widget.password,
                     ),
                   ),
                 );
@@ -80,7 +80,7 @@ class _GardenLongeBarPageState extends State<GardenLongeBarPage> {
                   MaterialPageRoute(
                     builder: (context) => BookingHistory(
                       email: widget.email,
-                      phone: widget.phone,
+                      password: widget.password,
                     ),
                   ),
                 );
@@ -266,7 +266,7 @@ class _GardenLongeBarPageState extends State<GardenLongeBarPage> {
                                                   padding:
                                                       const EdgeInsets.all(10),
                                                   child: const Text(
-                                                    'Menu Title', // Tiêu đề
+                                                    'MENU', // Tiêu đề
                                                     style: TextStyle(
                                                         color: Colors.black,
                                                         fontSize: 24,
@@ -533,7 +533,7 @@ class _GardenLongeBarPageState extends State<GardenLongeBarPage> {
                                 MaterialPageRoute(
                                     builder: (context) => ComVangRestaurantPage(
                                           email: widget.email,
-                                          phone: widget.phone,
+                                          password: widget.password,
                                         )),
                               );
                             },
