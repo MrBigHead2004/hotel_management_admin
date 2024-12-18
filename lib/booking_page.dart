@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
+import 'dart:convert'; // Để làm việc với JSON
+import 'package:flutter/services.dart';
 import 'package:flutter_2/booking_history.dart';
-import 'package:flutter_2/customer_home_page.dart';
-// import 'package:flutter_2/customer_home_page.dart';
+import 'package:flutter_2/customer_home_page.dart'; // Để đọc file JSON
 
 class BookingPage extends StatefulWidget {
-  const BookingPage({super.key, required this.email, required this.password});
-  final String email;
-  final String password;
+  const BookingPage({super.key, required this.cusid});
+  final int cusid;
 
   @override
   State<BookingPage> createState() => _BookingPageState();
@@ -14,15 +14,52 @@ class BookingPage extends StatefulWidget {
 
 class _BookingPageState extends State<BookingPage> {
   Map<String, Map<String, dynamic>> selectedRooms = {};
-
   DateTime? checkInDate;
   DateTime? checkOutDate;
+  List<dynamic> bookings = []; // Danh sách các booking từ file JSON
+  List<dynamic> rooms = []; // Danh sách các phòng từ file JSON
 
   @override
   void initState() {
     super.initState();
     checkInDate = DateTime.now();
     checkOutDate = checkInDate!.add(const Duration(days: 1));
+    _loadData(); // Tải dữ liệu booking và phòng từ file JSON
+  }
+
+  // Hàm để đọc file booking.json và rooms.json
+  Future<void> _loadData() async {
+    final String roomResponse =
+        await rootBundle.loadString('assets/data/room_to_book.json');
+    final String bookingResponse =
+        await rootBundle.loadString('assets/data/booking.json');
+
+    final roomData = json.decode(roomResponse);
+    final bookingData = json.decode(bookingResponse);
+
+    setState(() {
+      rooms = roomData;
+      bookings = bookingData;
+    });
+  }
+
+  // Kiểm tra phòng có trùng lịch không
+  bool isRoomAvailable(String roomId) {
+    for (var booking in bookings) {
+      if (booking['room_id'] == roomId) {
+        DateTime bookingCheckInDate = DateTime.parse(booking['check_in_date']);
+        DateTime bookingCheckOutDate =
+            DateTime.parse(booking['check_out_date']);
+        // Kiểm tra xem lịch đặt có trùng không
+        if ((checkInDate!.isBefore(bookingCheckOutDate) &&
+                checkOutDate!.isAfter(bookingCheckInDate)) ||
+            (checkInDate!.isAtSameMomentAs(bookingCheckInDate) ||
+                checkOutDate!.isAtSameMomentAs(bookingCheckOutDate))) {
+          return false; // Phòng không có sẵn
+        }
+      }
+    }
+    return true; // Phòng có sẵn
   }
 
   Future<void> _selectDate(BuildContext context, bool isCheckIn) async {
@@ -38,16 +75,21 @@ class _BookingPageState extends State<BookingPage> {
       firstDate: firstDate,
       lastDate: lastDate,
     );
+
     if (pickedDate != null) {
       setState(() {
         if (isCheckIn) {
+          // Khi thay đổi check-in, xóa các phòng đã chọn
           checkInDate = pickedDate;
+          selectedRooms.clear(); // Xóa các phòng đã chọn trước đó
           if (checkOutDate == null || checkOutDate!.isBefore(checkInDate!)) {
             checkOutDate = checkInDate!.add(const Duration(days: 1));
           }
         } else {
+          // Khi thay đổi check-out, xóa các phòng đã chọn
           if (pickedDate.isAfter(checkInDate!)) {
             checkOutDate = pickedDate;
+            selectedRooms.clear(); // Xóa các phòng đã chọn trước đó
           } else {
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(
@@ -68,7 +110,7 @@ class _BookingPageState extends State<BookingPage> {
       int numNights = checkOutDate!.difference(checkInDate!).inDays;
 
       selectedRooms.forEach((roomName, details) {
-        double roomPrice = details['price'];
+        int roomPrice = details['price'];
         total += roomPrice * numNights;
       });
     }
@@ -76,89 +118,95 @@ class _BookingPageState extends State<BookingPage> {
   }
 
   Widget buildRoomGrid() {
-    List<String> roomTypes = ['DDR', 'EDR', 'JSD'];
-    List<double> roomPrices = [100, 150, 200];
-
-    return GridView.builder(
-      shrinkWrap: true,
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 8, // 8 phòng mỗi tầng
-        childAspectRatio: 1,
-        crossAxisSpacing: 4,
-        mainAxisSpacing: 4,
-      ),
-      itemCount: 64, // Tổng 8 tầng * 8 phòng
-      itemBuilder: (context, index) {
-        int floor = index ~/ 8 + 2;
-        int roomNumber = index % 8 + 1;
-        String roomName = '${roomTypes[floor % 3]} Room $floor-$roomNumber';
-        double roomPrice = roomPrices[floor % 3];
-
-        bool isSelected = selectedRooms.containsKey(roomName);
-
-        return GestureDetector(
-          onTap: () {
-            setState(() {
-              if (isSelected) {
-                selectedRooms.remove(roomName);
-              } else {
-                selectedRooms[roomName] = {
-                  'price': roomPrice,
-                  'quantity': 1,
-                  'type': roomTypes[floor % 3]
-                };
-              }
-            });
-          },
-          child: Container(
-            decoration: BoxDecoration(
-              color: isSelected ? Colors.green : Colors.grey[300],
-              borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: Colors.black),
-            ),
-            child: Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    roomName,
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  Text(
-                    '${roomPrice.toStringAsFixed(2)} USD',
-                    style: const TextStyle(
-                      fontSize: 10,
-                      color: Colors.black87,
-                    ),
-                  ),
-                ],
-              ),
-            ),
+    return Center(
+      child: SizedBox(
+        height: 520,
+        width: 520,
+        child: GridView.builder(
+          shrinkWrap: true,
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 8, // 8 phòng mỗi tầng
+            childAspectRatio: 1,
+            crossAxisSpacing: 4,
+            mainAxisSpacing: 4,
           ),
-        );
-      },
+          itemCount: rooms.length, // Số lượng phòng từ JSON
+          itemBuilder: (context, index) {
+            var room = rooms[index];
+            String roomId = room['room_id'];
+            int roomPrice = room['price'];
+            String roomType = room['room_type'];
+
+            // Viết tắt tên các loại phòng
+            String abbreviatedRoomType = '';
+            if (roomType == 'DeluxeDouble') {
+              abbreviatedRoomType = 'DDR';
+            } else if (roomType == 'ExecutiveDouble') {
+              abbreviatedRoomType = 'EDR';
+            } else if (roomType == 'JuniorSuiteDouble') {
+              abbreviatedRoomType = 'JSD';
+            }
+
+            bool isSelected = selectedRooms.containsKey(roomId);
+            bool isAvailable = isRoomAvailable(roomId);
+
+            return GestureDetector(
+              onTap: () {
+                if (isAvailable) {
+                  setState(() {
+                    if (isSelected) {
+                      selectedRooms.remove(roomId);
+                    } else {
+                      selectedRooms[roomId] = {
+                        'price': roomPrice,
+                        'quantity': 1,
+                        'type': room['room_type']
+                      };
+                    }
+                  });
+                }
+              },
+              child: Container(
+                decoration: BoxDecoration(
+                  color: isAvailable
+                      ? (isSelected ? Colors.green : Colors.grey[300])
+                      : Colors.red[200], // Nếu không có sẵn, sẽ hiển thị màu đỏ
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: Colors.black),
+                ),
+                child: Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        '$roomId\n$abbreviatedRoomType-$roomPrice\$',
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            );
+          },
+        ),
+      ),
     );
   }
 
   Widget buildPaymentBox() {
-    Map<String, String> price = {
-      'DDR': '100 USD',
-      'EDR': '150 USD',
-      'JSD': '200 USD'
-    };
     Map<String, List<String>> groupedRooms = {};
 
     // Nhóm các phòng theo loại
-    selectedRooms.forEach((roomName, details) {
+    selectedRooms.forEach((roomId, details) {
       String roomType = details['type'];
       if (!groupedRooms.containsKey(roomType)) {
         groupedRooms[roomType] = [];
       }
-      groupedRooms[roomType]!.add(roomName);
+      groupedRooms[roomType]!.add(roomId);
     });
 
     return Column(
@@ -181,10 +229,18 @@ class _BookingPageState extends State<BookingPage> {
                 ...groupedRooms.entries.map((entry) {
                   String roomType = entry.key;
                   List<String> rooms = entry.value;
+                  int prices = 0;
+                  if (roomType == 'DeluxeDouble') {
+                    prices = 100;
+                  } else if (roomType == 'ExecutiveDouble') {
+                    prices = 150;
+                  } else {
+                    prices = 200;
+                  }
                   return Padding(
                     padding: const EdgeInsets.only(bottom: 8),
                     child: Text(
-                      '$roomType-${price[roomType]}: ${rooms.join(", ")}',
+                      '$roomType-$prices USD  : ${rooms.join(", ")}',
                       style: const TextStyle(fontSize: 14),
                     ),
                   );
@@ -247,48 +303,54 @@ class _BookingPageState extends State<BookingPage> {
         ),
         ElevatedButton(
           onPressed: () {
-            showDialog(
-              context: context,
-              builder: (BuildContext context) {
-                return AlertDialog(
-                  title: const Text('Confirm Booking'),
-                  content: const Text(
-                      'Are you sure you want to confirm the booking?'),
-                  actions: [
-                    TextButton(
-                      onPressed: () {
-                        // Đóng hộp thoại khi khách chọn "No"
-                        Navigator.of(context).pop();
-                      },
-                      child: const Text('No'),
-                    ),
-                    TextButton(
-                      onPressed: () {
-                        // Hiển thị thông báo đặt phòng thành công và chuyển trang
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Booking confirmed! Thank you.'),
-                            duration: Duration(seconds: 2),
-                          ),
-                        );
-                        Navigator.of(context).pop(); // Đóng hộp thoại
-                        Navigator.pushAndRemoveUntil(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => CustomerHomePage(
-                              email: widget.email,
-                              password: widget.password,
+            if (selectedRooms.isNotEmpty) {
+              showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return AlertDialog(
+                    title: const Text('Booking Confirmation'),
+                    content: const Text('Are you sure ?'),
+                    actions: [
+                      TextButton(
+                        onPressed: () {
+                          Navigator.pushAndRemoveUntil(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => CustomerHomePage(
+                                cusid: widget.cusid,
+                              ),
                             ),
-                          ),
-                          (route) => false,
-                        ); //đóng booking page
-                      },
-                      child: const Text('Yes'),
-                    ),
-                  ],
-                );
-              },
-            );
+                            (route) => false,
+                          );
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                                content: Text(
+                                    'Thanks you for choosing our services!')),
+                          );
+                        },
+                        child: const Text('YES'),
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          Navigator.pop(context);
+                        },
+                        child: const Text('NO'),
+                      ),
+                    ],
+                  );
+                },
+              );
+            } else {
+              showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return const AlertDialog(
+                    title: Text('Warning'),
+                    content: Text('You havent chosen any room yet :v'),
+                  );
+                },
+              );
+            }
           },
           child: const Text('Confirm Booking'),
         ),
@@ -299,7 +361,6 @@ class _BookingPageState extends State<BookingPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      resizeToAvoidBottomInset: false,
       appBar: AppBar(
         toolbarHeight: 80,
         centerTitle: true,
@@ -316,8 +377,7 @@ class _BookingPageState extends State<BookingPage> {
                 context,
                 MaterialPageRoute(
                   builder: (context) => CustomerHomePage(
-                    email: widget.email,
-                    password: widget.password,
+                    cusid: widget.cusid,
                   ),
                 ),
               );
@@ -340,8 +400,7 @@ class _BookingPageState extends State<BookingPage> {
                 context,
                 MaterialPageRoute(
                   builder: (context) => BookingHistory(
-                    email: widget.email,
-                    password: widget.password,
+                    cusid: widget.cusid,
                   ),
                 ),
               );
@@ -354,15 +413,25 @@ class _BookingPageState extends State<BookingPage> {
         ],
         backgroundColor: const Color.fromARGB(255, 3, 33, 22),
       ),
-      body: Column(
+      body: ListView(
         children: [
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: buildRoomGrid(),
-            ),
+          buildRoomGrid(),
+          const SizedBox(
+            height: 10,
           ),
-          if (selectedRooms.isNotEmpty) buildPaymentBox(),
+          const Text(
+            'Red rooms are not available during the period you selected',
+            style: TextStyle(
+              fontSize: 20,
+              color: Colors.redAccent, // Màu đỏ nhạt
+              fontStyle: FontStyle.italic, // Nghiêng chữ
+            ),
+            textAlign: TextAlign.center, // Căn giữa
+          ),
+          const SizedBox(
+            height: 10,
+          ),
+          buildPaymentBox(),
         ],
       ),
     );

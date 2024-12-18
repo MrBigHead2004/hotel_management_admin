@@ -4,14 +4,10 @@ import 'package:flutter_2/booking_page.dart';
 import 'package:flutter_2/com_vang_restaurant_page.dart';
 import 'package:flutter_2/garden_longe_bar_page.dart';
 import 'package:flutter_2/room_details.dart';
-import 'package:flutter_map/flutter_map.dart';
-import 'package:latlong2/latlong.dart';
 
 class CustomerHomePage extends StatefulWidget {
-  const CustomerHomePage(
-      {super.key, required this.email, required this.password});
-  final String email;
-  final String password;
+  const CustomerHomePage({super.key, required this.cusid});
+  final int cusid;
   @override
   State<CustomerHomePage> createState() => _CustomerHomePageState();
 }
@@ -20,7 +16,6 @@ class _CustomerHomePageState extends State<CustomerHomePage> {
   final ScrollController _scrollController = ScrollController();
   @override
   Widget build(BuildContext context) {
-    const LatLng location = LatLng(21.0076, 105.7772);
     return Scaffold(
         resizeToAvoidBottomInset: false,
         appBar: AppBar(
@@ -39,8 +34,7 @@ class _CustomerHomePageState extends State<CustomerHomePage> {
                   context,
                   MaterialPageRoute(
                     builder: (context) => CustomerHomePage(
-                      email: widget.email,
-                      password: widget.password,
+                      cusid: widget.cusid,
                     ),
                   ),
                 );
@@ -62,8 +56,7 @@ class _CustomerHomePageState extends State<CustomerHomePage> {
                   context,
                   MaterialPageRoute(
                     builder: (context) => BookingPage(
-                      email: widget.email,
-                      password: widget.password,
+                      cusid: widget.cusid,
                     ),
                   ),
                 );
@@ -79,8 +72,7 @@ class _CustomerHomePageState extends State<CustomerHomePage> {
                   context,
                   MaterialPageRoute(
                     builder: (context) => BookingHistory(
-                      email: widget.email,
-                      password: widget.password,
+                      cusid: widget.cusid,
                     ),
                   ),
                 );
@@ -146,8 +138,10 @@ class _CustomerHomePageState extends State<CustomerHomePage> {
                                 fit: BoxFit.cover, // Cách hiển thị hình ảnh
                               ),
                               const Text(
-                                'Deluxe double or twin room',
-                                style: TextStyle(color: Color(0xFFFFFFF0)),
+                                'Deluxe Double',
+                                style: TextStyle(
+                                    color: Color.fromARGB(255, 3, 33, 22),
+                                    fontSize: 20),
                               ),
                               SizedBox(
                                 width: 400,
@@ -169,8 +163,7 @@ class _CustomerHomePageState extends State<CustomerHomePage> {
                                             MaterialPageRoute(
                                                 builder: (context) =>
                                                     BookingPage(
-                                                      email: widget.email,
-                                                      password: widget.password,
+                                                      cusid: widget.cusid,
                                                     )),
                                           );
                                         },
@@ -191,8 +184,7 @@ class _CustomerHomePageState extends State<CustomerHomePage> {
                                                 builder: (context) =>
                                                     DetailsPage(
                                                       type: 'DeluxeDouble',
-                                                      email: widget.email,
-                                                      password: widget.password,
+                                                      cusid: widget.cusid,
                                                     )),
                                           );
                                         },
@@ -231,8 +223,10 @@ class _CustomerHomePageState extends State<CustomerHomePage> {
                                 fit: BoxFit.cover, // Cách hiển thị hình ảnh
                               ),
                               const Text(
-                                'Executive double or twin room',
-                                style: TextStyle(color: Color(0xFFFFFFF0)),
+                                'Executive Double',
+                                style: TextStyle(
+                                    color: Color.fromARGB(255, 3, 33, 22),
+                                    fontSize: 20),
                               ),
                               SizedBox(
                                 width: 400,
@@ -254,8 +248,7 @@ class _CustomerHomePageState extends State<CustomerHomePage> {
                                             MaterialPageRoute(
                                                 builder: (context) =>
                                                     BookingPage(
-                                                      email: widget.email,
-                                                      password: widget.password,
+                                                      cusid: widget.cusid,
                                                     )),
                                           );
                                         },
@@ -276,8 +269,7 @@ class _CustomerHomePageState extends State<CustomerHomePage> {
                                                 builder: (context) =>
                                                     DetailsPage(
                                                       type: 'ExecutiveDouble',
-                                                      email: widget.email,
-                                                      password: widget.password,
+                                                      cusid: widget.cusid,
                                                     )),
                                           );
                                         },
@@ -318,7 +310,9 @@ class _CustomerHomePageState extends State<CustomerHomePage> {
                               ),
                               const Text(
                                 'Junior Suite Double',
-                                style: TextStyle(color: Color(0xFFFFFFF0)),
+                                style: TextStyle(
+                                    color: Color.fromARGB(255, 3, 33, 22),
+                                    fontSize: 20),
                               ),
                               SizedBox(
                                 width: 400,
@@ -341,8 +335,7 @@ class _CustomerHomePageState extends State<CustomerHomePage> {
                                             MaterialPageRoute(
                                                 builder: (context) =>
                                                     BookingPage(
-                                                      email: widget.email,
-                                                      password: widget.password,
+                                                      cusid: widget.cusid,
                                                     )),
                                           );
                                         },
@@ -363,8 +356,7 @@ class _CustomerHomePageState extends State<CustomerHomePage> {
                                                 builder: (context) =>
                                                     DetailsPage(
                                                       type: 'JuniorSuiteDouble',
-                                                      email: widget.email,
-                                                      password: widget.password,
+                                                      cusid: widget.cusid,
                                                     )),
                                           );
                                         },
@@ -486,8 +478,7 @@ class _CustomerHomePageState extends State<CustomerHomePage> {
                                             MaterialPageRoute(
                                                 builder: (context) =>
                                                     ComVangRestaurantPage(
-                                                      email: widget.email,
-                                                      password: widget.password,
+                                                      cusid: widget.cusid,
                                                     )),
                                           );
                                         },
@@ -581,8 +572,7 @@ class _CustomerHomePageState extends State<CustomerHomePage> {
                                           MaterialPageRoute(
                                               builder: (context) =>
                                                   GardenLongeBarPage(
-                                                    email: widget.email,
-                                                    password: widget.password,
+                                                    cusid: widget.cusid,
                                                   )),
                                         );
                                       },
@@ -792,37 +782,6 @@ class _CustomerHomePageState extends State<CustomerHomePage> {
                   const SizedBox(
                     height: 60,
                   ),
-                  // SizedBox(
-                  //   height: 300,
-                  //   child: FlutterMap(
-                  //     options: MapOptions(
-                  //         center: location,
-                  //         interactiveFlags:
-                  //             InteractiveFlag.drag // Chỉ cho phép kéo
-                  //         ),
-                  //     children: [
-                  //       // Lớp bản đồ (OpenStreetMap)
-                  //       TileLayer(
-                  //         urlTemplate:
-                  //             'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-                  //         subdomains: const ['a', 'b', 'c'],
-                  //       ),
-                  //       // Marker hiển thị vị trí
-                  //       MarkerLayer(
-                  //         markers: [
-                  //           Marker(
-                  //             point: location,
-                  //             builder: (ctx) => const Icon(
-                  //               Icons.location_pin,
-                  //               size: 50,
-                  //               color: Colors.black,
-                  //             ),
-                  //           ),
-                  //         ],
-                  //       ),
-                  //     ],
-                  //   ),
-                  // ),
                 ],
               ),
             ]),

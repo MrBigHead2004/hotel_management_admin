@@ -5,10 +5,8 @@ import 'package:flutter_2/customer_home_page.dart';
 import 'package:flutter_2/garden_longe_bar_page.dart';
 
 class ComVangRestaurantPage extends StatefulWidget {
-  const ComVangRestaurantPage(
-      {super.key, required this.email, required this.password});
-  final String email;
-  final String password;
+  const ComVangRestaurantPage({super.key, required this.cusid});
+  final int cusid;
 
   @override
   State<ComVangRestaurantPage> createState() => _ComVangRestaurantPageState();
@@ -35,8 +33,7 @@ class _ComVangRestaurantPageState extends State<ComVangRestaurantPage> {
                   context,
                   MaterialPageRoute(
                     builder: (context) => CustomerHomePage(
-                      email: widget.email,
-                      password: widget.password,
+                      cusid: widget.cusid,
                     ),
                   ),
                 );
@@ -58,8 +55,7 @@ class _ComVangRestaurantPageState extends State<ComVangRestaurantPage> {
                   context,
                   MaterialPageRoute(
                     builder: (context) => BookingPage(
-                      email: widget.email,
-                      password: widget.password,
+                      cusid: widget.cusid,
                     ),
                   ),
                 );
@@ -75,8 +71,7 @@ class _ComVangRestaurantPageState extends State<ComVangRestaurantPage> {
                   context,
                   MaterialPageRoute(
                     builder: (context) => BookingHistory(
-                      email: widget.email,
-                      password: widget.password,
+                      cusid: widget.cusid,
                     ),
                   ),
                 );
@@ -573,8 +568,7 @@ class _ComVangRestaurantPageState extends State<ComVangRestaurantPage> {
                               context,
                               MaterialPageRoute(
                                   builder: (context) => GardenLongeBarPage(
-                                        email: widget.email,
-                                        password: widget.password,
+                                        cusid: widget.cusid,
                                       )),
                             );
                           },

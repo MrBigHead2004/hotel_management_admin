@@ -53,7 +53,9 @@ class _RegisterPageState extends State<RegisterPage> {
             context,
             PageRouteBuilder(
               pageBuilder: (context, animation, secondaryAnimation) =>
-                  CustomerHomePage(email: email, password: password),
+                  CustomerHomePage(
+                cusid: 1,
+              ),
               transitionsBuilder:
                   (context, animation, secondaryAnimation, child) {
                 return FadeTransition(

@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'customer_home_page.dart'; // Màn hình khách hàng sau khi đăng nhập
+import 'package:flutter/services.dart'; // Để sử dụng rootBundle để đọc file JSON
 
 class CustomerLoginPage extends StatefulWidget {
   const CustomerLoginPage({super.key});
@@ -13,47 +13,68 @@ class CustomerLoginPage extends StatefulWidget {
 class _CustomerLoginPageState extends State<CustomerLoginPage> {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
+  List<Map<String, dynamic>> customers = [];
 
-  // Hàm tải dữ liệu khách hàng từ GitHub
+  // Hàm tải dữ liệu khách hàng từ file JSON
+  Future<void> loadCustomerData() async {
+    // Đọc file JSON chứa dữ liệu người dùng
+    final String response =
+        await rootBundle.loadString('assets/data/customers.json');
+    final data = json.decode(response);
+
+    // Chuyển dữ liệu JSON thành danh sách các khách hàng
+    setState(() {
+      customers = List<Map<String, dynamic>>.from(data);
+    });
+  }
+
+  // Hàm kiểm tra đăng nhập
   Future<void> checkCustomerLogin() async {
     String inputEmail = emailController.text;
     String inputPassword = passwordController.text;
 
-    // Gửi yêu cầu đăng nhập tới backend Django
-    final response = await http.post(
-      Uri.parse('http://10.13.48.244:8000/users/login/'), // URL backend Django
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: json.encode({
-        'username': inputEmail,
-        'password': inputPassword,
-      }),
+    // Kiểm tra xem email và mật khẩu có khớp với dữ liệu trong file JSON
+    Map<String, dynamic>? validCustomer = customers.firstWhere(
+      (customer) =>
+          customer['email'] == inputEmail &&
+          customer['password'] == inputPassword,
+      orElse: () => {},
     );
 
-    if (response.statusCode == 200) {
-      // Giả sử API trả về thông tin người dùng
-      var responseData = json.decode(response.body);
-      String email = responseData['email']; // email từ response backend
+    if (validCustomer != {}) {
+      if (validCustomer['cus_id'] != null) {
+        // Lấy cus_id từ dữ liệu người dùng
 
-      // Nếu đăng nhập thành công, chuyển sang trang khách hàng
-      Navigator.pushAndRemoveUntil(
-        context,
-        PageRouteBuilder(
-          pageBuilder: (context, animation, secondaryAnimation) =>
-              CustomerHomePage(
-            email: email,
-            password: inputPassword, // Cũng có thể lấy mật khẩu nếu cần
+        // Nếu đăng nhập thành công, chuyển sang trang khách hàng với cus_id
+        Navigator.pushAndRemoveUntil(
+          context,
+          PageRouteBuilder(
+            pageBuilder: (context, animation, secondaryAnimation) =>
+                CustomerHomePage(
+              cusid: validCustomer[
+                  'cus_id'], // Truyền cus_id thay vì email và password
+            ),
+            transitionsBuilder:
+                (context, animation, secondaryAnimation, child) {
+              return FadeTransition(
+                opacity: animation,
+                child: child,
+              );
+            },
           ),
-          transitionsBuilder: (context, animation, secondaryAnimation, child) {
-            return FadeTransition(
-              opacity: animation,
-              child: child,
+          (route) => false,
+        );
+      } else {
+        // Nếu đăng nhập thất bại, hiển thị thông báo lỗi
+        showDialog(
+          context: context,
+          builder: (context) {
+            return const AlertDialog(
+              content: Text("Invalid email or password."),
             );
           },
-        ),
-        (route) => false,
-      );
+        );
+      }
     } else {
       // Nếu đăng nhập thất bại, hiển thị thông báo lỗi
       showDialog(
@@ -65,6 +86,13 @@ class _CustomerLoginPageState extends State<CustomerLoginPage> {
         },
       );
     }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    // Tải dữ liệu người dùng khi trang được khởi tạo
+    loadCustomerData();
   }
 
   @override
@@ -84,12 +112,10 @@ class _CustomerLoginPageState extends State<CustomerLoginPage> {
           padding: const EdgeInsets.all(16.0),
           child: Column(
             children: [
-              // Bố cục sẽ thay đổi linh hoạt theo kích thước màn hình
               if (screenWidth > 800)
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Form đăng nhập
                     Expanded(
                       flex: 2,
                       child: Column(
@@ -180,7 +206,6 @@ class _CustomerLoginPageState extends State<CustomerLoginPage> {
                       ),
                     ),
                     const SizedBox(width: 20),
-                    // Hình ảnh bên cạnh
                     if (screenWidth > 800)
                       Expanded(
                         flex: 3,
@@ -192,7 +217,6 @@ class _CustomerLoginPageState extends State<CustomerLoginPage> {
                   ],
                 )
               else
-                // Bố cục cho màn hình nhỏ hơn
                 Column(
                   children: [
                     const SizedBox(height: 50),
