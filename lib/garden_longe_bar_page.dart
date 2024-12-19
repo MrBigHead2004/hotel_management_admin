@@ -6,8 +6,10 @@ import 'package:flutter_2/customer_home_page.dart';
 
 //import 'dart:html' as html;
 class GardenLongeBarPage extends StatefulWidget {
-  const GardenLongeBarPage({super.key, required this.cusid});
-  final int cusid;
+  const GardenLongeBarPage(
+      {super.key, required this.email, required this.password});
+  final String email;
+  final String password;
 
   @override
   State<GardenLongeBarPage> createState() => _GardenLongeBarPageState();
@@ -37,7 +39,8 @@ class _GardenLongeBarPageState extends State<GardenLongeBarPage> {
                   context,
                   MaterialPageRoute(
                     builder: (context) => CustomerHomePage(
-                      cusid: widget.cusid,
+                      email: widget.email,
+                      password: widget.password,
                     ),
                   ),
                 );
@@ -59,7 +62,8 @@ class _GardenLongeBarPageState extends State<GardenLongeBarPage> {
                   context,
                   MaterialPageRoute(
                     builder: (context) => BookingPage(
-                      cusid: widget.cusid,
+                      email: widget.email,
+                      password: widget.password,
                     ),
                   ),
                 );
@@ -75,7 +79,8 @@ class _GardenLongeBarPageState extends State<GardenLongeBarPage> {
                   context,
                   MaterialPageRoute(
                     builder: (context) => BookingHistory(
-                      cusid: widget.cusid,
+                      email: widget.email,
+                      password: widget.password,
                     ),
                   ),
                 );
@@ -527,7 +532,8 @@ class _GardenLongeBarPageState extends State<GardenLongeBarPage> {
                                 context,
                                 MaterialPageRoute(
                                     builder: (context) => ComVangRestaurantPage(
-                                          cusid: widget.cusid,
+                                          email: widget.email,
+                                          password: widget.password,
                                         )),
                               );
                             },

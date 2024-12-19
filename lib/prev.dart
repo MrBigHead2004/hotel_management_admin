@@ -49,7 +49,7 @@ class _CustomerLoginPageState extends State<CustomerLoginPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Chào mừng, $inputEmail!'),
-          duration: Duration(seconds: 3),
+          duration: const Duration(seconds: 3),
         ),
       );
       Navigator.pushAndRemoveUntil(

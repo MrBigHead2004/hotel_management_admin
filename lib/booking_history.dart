@@ -5,8 +5,10 @@ import 'package:flutter_2/booking_page.dart';
 import 'package:flutter_2/customer_home_page.dart';
 
 class BookingHistory extends StatefulWidget {
-  final int cusid;
-  const BookingHistory({super.key, required this.cusid});
+  final String email;
+  final String password;
+  const BookingHistory(
+      {super.key, required this.email, required this.password});
 
   @override
   State<BookingHistory> createState() => _BookingHistoryState();
@@ -23,28 +25,32 @@ class _BookingHistoryState extends State<BookingHistory> {
       isLoading = true; // Bắt đầu tải
     });
     try {
-      // Đọc file JSON chứa dữ liệu lịch sử đặt phòng
+      // Đọc file JSON từ assets
       final String response =
-          await rootBundle.loadString('assets/data/booking.json');
+          await rootBundle.loadString('assets/data/booking_history.json');
 
       // Phân tích cú pháp JSON
       final data = json.decode(response);
 
-      // Kiểm tra cấu trúc JSON và chuyển kiểu
-      if (data is List) {
-        // Chuyển đổi List<dynamic> thành List<Map<String, dynamic>>
-        final customerBookings = List<Map<String, dynamic>>.from(data)
-            .where(
-              (booking) => booking['cus_id'] == widget.cusid,
-            )
-            .toList();
+      // Kiểm tra cấu trúc JSON
+      if (data is Map<String, dynamic> && data['customers'] is List) {
+        final customers = List<Map<String, dynamic>>.from(data['customers']);
 
-        if (customerBookings.isNotEmpty) {
+        // Tìm khách hàng khớp với email và phone
+        final customer = customers.firstWhere(
+          (cust) =>
+              cust['email'] == widget.email &&
+              cust['password'] == widget.password,
+          orElse: () => {},
+        );
+
+        if (customer.isNotEmpty && customer['bookingHistory'] is List) {
           setState(() {
-            bookingHistory = customerBookings;
+            bookingHistory =
+                List<Map<String, dynamic>>.from(customer['bookingHistory']);
           });
         } else {
-          // Không tìm thấy lịch sử đặt phòng cho khách hàng
+          // Không tìm thấy khách hàng hoặc không có lịch sử đặt phòng
           setState(() {
             bookingHistory = [];
           });
@@ -69,6 +75,10 @@ class _BookingHistoryState extends State<BookingHistory> {
         isLoading = false; // Kết thúc tải
       });
     }
+  }
+
+  bool getHistory(String email, String password) {
+    return bookingHistory.isEmpty;
   }
 
   @override
@@ -96,7 +106,8 @@ class _BookingHistoryState extends State<BookingHistory> {
                 context,
                 MaterialPageRoute(
                   builder: (context) => CustomerHomePage(
-                    cusid: widget.cusid,
+                    email: widget.email,
+                    password: widget.password,
                   ),
                 ),
               );
@@ -118,7 +129,8 @@ class _BookingHistoryState extends State<BookingHistory> {
                 context,
                 MaterialPageRoute(
                   builder: (context) => BookingPage(
-                    cusid: widget.cusid,
+                    email: widget.email,
+                    password: widget.password,
                   ),
                 ),
               );
@@ -166,7 +178,7 @@ class _BookingHistoryState extends State<BookingHistory> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'Room ID: ${booking['room_id']}',
+                              'Booking ID: ${booking['bookingId']}',
                               style: const TextStyle(
                                 fontWeight: FontWeight.bold,
                                 fontSize: 16,
@@ -174,24 +186,31 @@ class _BookingHistoryState extends State<BookingHistory> {
                             ),
                             const SizedBox(height: 8),
                             Text(
-                              'Check-in: ${booking['check_in_date']}',
+                              'Room: ${booking['room']}',
                               style: const TextStyle(fontSize: 14),
                             ),
                             const SizedBox(height: 8),
                             Text(
-                              'Check-out: ${booking['check_out_date']}',
+                              'Check-in: ${booking['checkInDate']}',
                               style: const TextStyle(fontSize: 14),
                             ),
                             const SizedBox(height: 8),
                             Text(
-                              'Booking Date: ${booking['booking_date']}',
+                              'Check-out: ${booking['checkOutDate']}',
                               style: const TextStyle(fontSize: 14),
                             ),
                             const SizedBox(height: 8),
                             Text(
-                              'Price: \$${booking['price']}',
-                              style: const TextStyle(
-                                  fontSize: 14, fontWeight: FontWeight.bold),
+                              'Status: ${booking['status']}',
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold,
+                                color: booking['status'] == 'Confirmed'
+                                    ? Colors.green
+                                    : booking['status'] == 'Pending'
+                                        ? Colors.orange
+                                        : Colors.red,
+                              ),
                             ),
                           ],
                         ),

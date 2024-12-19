@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_2/first_page.dart';
+import 'package:provider/provider.dart';
+import 'constants.dart';
+import 'admin_theme_notifier.dart';
 //import 'dart:html' as html;
 
 void main() {
@@ -31,9 +34,31 @@ class MyApp extends StatelessWidget {
   const MyApp({super.key});
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: FirstPage(),
+    return ChangeNotifierProvider(
+      create: (_) => ThemeNotifier(),
+      child: Consumer<ThemeNotifier>(
+        builder: (context, themeNotifier, child) {
+          return MaterialApp(
+            debugShowCheckedModeBanner: false,
+            theme: themeNotifier.currentTheme.copyWith(
+              textTheme: ThemeData.light().textTheme.apply(
+                fontFamily: 'SF Pro Display',
+              ),
+              elevatedButtonTheme: ElevatedButtonThemeData(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: themeNotifier.isDarkMode ? darkSecondaryBgColor : Colors.white,
+                ),
+              ),
+            ),
+            darkTheme: themeNotifier.currentTheme.copyWith(
+              textTheme: ThemeData.dark().textTheme.apply(
+                fontFamily: 'SF Pro Display',
+              ),
+            ),
+            home: const FirstPage(),
+          );
+        },
+      ),
     );
   }
 }

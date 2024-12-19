@@ -3,13 +3,15 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 void main() {
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return const MaterialApp(
       debugShowCheckedModeBanner: false,
       home: InfoScreen(),
     );
@@ -17,6 +19,8 @@ class MyApp extends StatelessWidget {
 }
 
 class InfoScreen extends StatefulWidget {
+  const InfoScreen({super.key});
+
   @override
   _InfoScreenState createState() => _InfoScreenState();
 }
@@ -76,15 +80,15 @@ class _InfoScreenState extends State<InfoScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Thông tin API"),
+        title: const Text("Thông tin API"),
       ),
       body: _isLoading
-          ? Center(child: CircularProgressIndicator())
+          ? const Center(child: CircularProgressIndicator())
           : _errorMessage.isNotEmpty
               ? Center(
                   child: Text(
                     _errorMessage,
-                    style: TextStyle(color: Colors.red),
+                    style: const TextStyle(color: Colors.red),
                   ),
                 )
               : ListView.builder(
@@ -99,7 +103,7 @@ class _InfoScreenState extends State<InfoScreen> {
                 ),
       floatingActionButton: FloatingActionButton(
         onPressed: fetchData,
-        child: Icon(Icons.refresh),
+        child: const Icon(Icons.refresh),
       ),
     );
   }

@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-//import 'package:flutter_2/customer_login_page.dart';
 import 'package:flutter_2/employee_login_page.dart';
 import 'package:flutter_2/register_page.dart';
+
+import 'admin_main_page.dart';
 
 class FirstPage extends StatelessWidget {
   const FirstPage({super.key});
@@ -57,7 +58,7 @@ class FirstPage extends StatelessWidget {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => const EmployeeLoginPage(),
+                            builder: (context) => const MainPage(),
                           ),
                         );
                       },

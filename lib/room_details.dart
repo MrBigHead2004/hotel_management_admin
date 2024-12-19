@@ -6,13 +6,15 @@ import 'package:flutter_2/customer_home_page.dart';
 
 class DetailsPage extends StatefulWidget {
   final String type; // Loại phòng
-  final int cusid;
+  final String email;
+  final String password;
 
   const DetailsPage({
-    Key? key,
+    super.key,
     required this.type,
-    required this.cusid,
-  }) : super(key: key);
+    required this.email,
+    required this.password,
+  });
 
   @override
   State<DetailsPage> createState() => _DetailsPageState();
@@ -37,7 +39,7 @@ class _DetailsPageState extends State<DetailsPage> {
 
       // Tìm thông tin phòng theo `type_name`
       final room = data.firstWhere(
-        (room) => room['room_type'] == widget.type,
+        (room) => room['type_name'] == widget.type,
         orElse: () => null,
       );
 
@@ -74,7 +76,8 @@ class _DetailsPageState extends State<DetailsPage> {
                 context,
                 MaterialPageRoute(
                   builder: (context) => CustomerHomePage(
-                    cusid: widget.cusid,
+                    email: widget.email,
+                    password: widget.password,
                   ),
                 ),
               );
@@ -100,7 +103,7 @@ class _DetailsPageState extends State<DetailsPage> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Image.asset(
-                          'assets/image/${selectedRoom!['room_type']}.png',
+                          'assets/image/${selectedRoom!['type_name']}.png',
                           width: MediaQuery.of(context).size.width * 0.4,
                           height: MediaQuery.of(context).size.height * 0.5,
                           fit: BoxFit.cover,
@@ -115,12 +118,12 @@ class _DetailsPageState extends State<DetailsPage> {
                         ),
                         const SizedBox(height: 10),
                         Text(
-                          'Type: ${selectedRoom!['room_type']}',
+                          'Type: ${selectedRoom!['type_name']}',
                           style: const TextStyle(fontSize: 18),
                         ),
                         const SizedBox(height: 5),
                         Text(
-                          'Price: ${selectedRoom!['price']} USD',
+                          'Price: ${selectedRoom!['price']}',
                           style: const TextStyle(fontSize: 18),
                         ),
                         const SizedBox(height: 5),
@@ -136,7 +139,8 @@ class _DetailsPageState extends State<DetailsPage> {
                                 context,
                                 MaterialPageRoute(
                                   builder: (context) => BookingPage(
-                                    cusid: widget.cusid,
+                                    email: widget.email,
+                                    password: widget.password,
                                   ),
                                 ),
                               );
