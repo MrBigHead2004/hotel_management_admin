@@ -62,12 +62,12 @@
     {"room_id": "807", "room_type": "DeluxeDouble", "price": 100},
     {"room_id": "808", "room_type": "DeluxeDouble", "price": 100},
 
-    {"room_id": "901", "room_type": "DeluxeDouble", "price": 100},
-    {"room_id": "902", "room_type": "DeluxeDouble", "price": 100},
-    {"room_id": "903", "room_type": "DeluxeDouble", "price": 100},
-    {"room_id": "904", "room_type": "DeluxeDouble", "price": 100},
-    {"room_id": "905", "room_type": "DeluxeDouble", "price": 100},
-    {"room_id": "906", "room_type": "DeluxeDouble", "price": 100},
-    {"room_id": "907", "room_type": "DeluxeDouble", "price": 100},
-    {"room_id": "908", "room_type": "DeluxeDouble", "price": 100}
+    {"room_id": "901", "room_type": "ExecutiveDouble", "price": 150},
+    {"room_id": "902", "room_type": "ExecutiveDouble", "price": 150},
+    {"room_id": "903", "room_type": "ExecutiveDouble", "price": 150},
+    {"room_id": "904", "room_type": "ExecutiveDouble", "price": 150},
+    {"room_id": "905", "room_type": "ExecutiveDouble", "price": 150},
+    {"room_id": "906", "room_type": "ExecutiveDouble", "price": 150},
+    {"room_id": "907", "room_type": "ExecutiveDouble", "price": 150},
+    {"room_id": "908", "room_type": "ExecutiveDouble", "price": 150}
 ]

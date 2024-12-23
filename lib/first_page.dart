@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-//import 'package:flutter_2/customer_login_page.dart';
-import 'package:flutter_2/employee_login_page.dart';
-import 'package:flutter_2/register_page.dart';
+import 'package:flutter_2/customer/employee_login_page.dart';
+import 'package:flutter_2/customer/register_page.dart';
+
+import 'admin/admin_main_page.dart';
 
 class FirstPage extends StatelessWidget {
   const FirstPage({super.key});
@@ -20,19 +21,6 @@ class FirstPage extends StatelessWidget {
           ),
         ),
         body: LayoutBuilder(builder: (context, constraints) {
-          double width = constraints.maxWidth;
-          double height = constraints.maxHeight;
-
-          // Kiểm tra nếu kích thước chiều ngang của cửa sổ nhỏ hơn giá trị tối thiểu
-          if (width < 800) {
-            // Đặt kích thước tối thiểu cho chiều ngang
-            width = 800;
-          }
-
-          if (height < 400) {
-            // Đặt kích thước tối thiểu cho chiều cao
-            height = 400;
-          }
           return SingleChildScrollView(
             child: Center(
               child: Column(
@@ -57,7 +45,7 @@ class FirstPage extends StatelessWidget {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => const EmployeeLoginPage(),
+                            builder: (context) => const MainPage(),
                           ),
                         );
                       },
