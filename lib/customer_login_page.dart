@@ -30,13 +30,13 @@ class _CustomerLoginPageState extends State<CustomerLoginPage> {
 
   // Hàm kiểm tra đăng nhập
   Future<void> checkCustomerLogin() async {
-    String inputEmail = emailController.text;
+    String inputUsername = emailController.text;
     String inputPassword = passwordController.text;
 
     // Kiểm tra xem email và mật khẩu có khớp với dữ liệu trong file JSON
     Map<String, dynamic>? validCustomer = customers.firstWhere(
       (customer) =>
-          customer['email'] == inputEmail &&
+          customer['username'] == inputUsername &&
           customer['password'] == inputPassword,
       orElse: () => {},
     );
@@ -70,7 +70,7 @@ class _CustomerLoginPageState extends State<CustomerLoginPage> {
           context: context,
           builder: (context) {
             return const AlertDialog(
-              content: Text("Invalid email or password."),
+              content: Text("Invalid username or password."),
             );
           },
         );
@@ -81,7 +81,7 @@ class _CustomerLoginPageState extends State<CustomerLoginPage> {
         context: context,
         builder: (context) {
           return const AlertDialog(
-            content: Text("Invalid email or password."),
+            content: Text("Invalid username or password."),
           );
         },
       );
@@ -130,13 +130,13 @@ class _CustomerLoginPageState extends State<CustomerLoginPage> {
                           ),
                           const SizedBox(height: 50),
                           const Text(
-                            "Email",
+                            "Username",
                             style: TextStyle(fontSize: 24),
                           ),
                           TextField(
                             controller: emailController,
                             decoration: InputDecoration(
-                              labelText: 'Email',
+                              labelText: 'Username',
                               enabledBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(8.0),
                                 borderSide: BorderSide(
@@ -226,7 +226,7 @@ class _CustomerLoginPageState extends State<CustomerLoginPage> {
                     ),
                     const SizedBox(height: 20),
                     const Text(
-                      "Email",
+                      "Username",
                       style: TextStyle(fontSize: 24),
                     ),
                     TextField(
