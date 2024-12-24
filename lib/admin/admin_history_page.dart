@@ -9,33 +9,33 @@ import 'constants.dart';
 class Booking {
   final int cusId;
   final int bookId;
-  final String roomId;
+  final String name;
   final String checkInDate;
   final String checkOutDate;
   final String bookingDate;
   final int price;
-
-  Booking({
-    required this.bookId,
-    required this.cusId,
-    required this.roomId,
-    required this.checkInDate,
-    required this.checkOutDate,
-    required this.bookingDate,
-    required this.price,
-  });
+  final String status;
+  Booking(
+      {required this.bookId,
+      required this.cusId,
+      required this.name,
+      required this.checkInDate,
+      required this.checkOutDate,
+      required this.bookingDate,
+      required this.price,
+      required this.status});
 
   // Phương thức chuyển từ JSON
   factory Booking.fromJson(Map<String, dynamic> json) {
     return Booking(
-      bookId: json['booking_id'],
-      cusId: json['cus_id'],
-      roomId: json['room_id'],
-      checkInDate: json['check_in_date'],
-      checkOutDate: json['check_out_date'],
-      bookingDate: json['booking_date'],
-      price: json['price'],
-    );
+        bookId: json['booking_id'],
+        cusId: json['cus_id'],
+        name: json['name'],
+        checkInDate: json['check_in_date'],
+        checkOutDate: json['check_out_date'],
+        bookingDate: json['booking_date'],
+        price: json['price'],
+        status: json['status']);
   }
 }
 
@@ -72,14 +72,14 @@ class HistoryPage extends StatelessWidget {
                   itemBuilder: (context, index) {
                     final booking = bookings[index];
                     return BookingTile(
-                      bookId: booking.bookId,
-                      cusId: booking.cusId,
-                      roomId: booking.roomId,
-                      checkInDate: booking.checkInDate,
-                      checkOutDate: booking.checkOutDate,
-                      bookingDate: booking.bookingDate,
-                      price: booking.price,
-                    );
+                        bookId: booking.bookId,
+                        cusId: booking.cusId,
+                        name: booking.name,
+                        checkInDate: booking.checkInDate,
+                        checkOutDate: booking.checkOutDate,
+                        bookingDate: booking.bookingDate,
+                        price: booking.price,
+                        status: booking.status);
                   },
                 );
               }
@@ -92,19 +92,20 @@ class HistoryPage extends StatelessWidget {
 }
 
 class BookingTile extends StatelessWidget {
-  const BookingTile({
-    super.key,
-    required this.bookId,
-    required this.cusId,
-    required this.roomId,
-    required this.checkInDate,
-    required this.checkOutDate,
-    required this.bookingDate,
-    required this.price,
-  });
+  const BookingTile(
+      {super.key,
+      required this.bookId,
+      required this.cusId,
+      required this.name,
+      required this.checkInDate,
+      required this.checkOutDate,
+      required this.bookingDate,
+      required this.price,
+      required this.status});
   final int bookId;
   final int cusId;
-  final String roomId;
+  final String status;
+  final String name;
   final String checkInDate;
   final String checkOutDate;
   final String bookingDate;
@@ -137,11 +138,12 @@ class BookingTile extends StatelessWidget {
           children: [
             const Padding(padding: EdgeInsets.only(top: defaultPadding / 2)),
             Text('Customer ID: $cusId'),
-            Text('Room ID: $roomId'),
+            Text('Room ID: $name'),
             Text('Check-in: $checkInDate'),
             Text('Check-out: $checkOutDate'),
             Text('Booking Date: $bookingDate'),
             Text('Price: \$${price.toString()}'),
+            Text('Status: $status'),
             const Padding(padding: EdgeInsets.only(top: defaultPadding / 2)),
           ],
         ),

@@ -57,7 +57,7 @@ class _RoomsPageState extends State<RoomsPage> {
       availableRooms = rooms.where((room) {
         // Lấy danh sách các booking liên quan đến phòng này
         final roomBookings = bookings.where((booking) {
-          return booking['room_id'] == room['room_id'];
+          return booking['name'] == room['name'];
         }).toList();
 
         // Kiểm tra nếu phòng này có bị đặt trong khoảng thời gian chọn
@@ -131,7 +131,7 @@ class _RoomsPageState extends State<RoomsPage> {
               Row(
                 children: [
                   _buildHeader('No.', 'index'),
-                  _buildHeader('Room ID', 'room_id'),
+                  _buildHeader('Room ID', 'name'),
                   _buildHeader('Room Type', 'room_type'),
                   _buildHeader('Price', 'price'),
                 ],
@@ -144,7 +144,7 @@ class _RoomsPageState extends State<RoomsPage> {
                     return Row(
                       children: [
                         _buildCell((index + 1).toString()),
-                        _buildCell(room['room_id']),
+                        _buildCell(room['name']),
                         _buildCell(room['room_type']),
                         _buildCell('\$${room['price']}'),
                       ],

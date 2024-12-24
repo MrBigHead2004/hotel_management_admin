@@ -14,32 +14,35 @@ class RegisterPage extends StatefulWidget {
 class _RegisterPageState extends State<RegisterPage> {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController phoneController = TextEditingController();
-  final TextEditingController nameController = TextEditingController();
+  final TextEditingController usernameController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
+  final TextEditingController fullnameController = TextEditingController();
 
   // Hàm gửi yêu cầu đăng ký đến backend
   Future<void> registerUser() async {
     final String email = emailController.text;
     final String phone = phoneController.text;
-    final String name = nameController.text;
+    final String username = usernameController.text;
     final String password = passwordController.text;
-
+    final String fullname = fullnameController.text;
     if (email.isNotEmpty &&
         phone.isNotEmpty &&
-        name.isNotEmpty &&
-        password.isNotEmpty) {
+        username.isNotEmpty &&
+        password.isNotEmpty &&
+        fullname.isNotEmpty) {
       // Dữ liệu để gửi đến API
       final Map<String, String> userData = {
         'email': email,
         'phone_number': phone,
-        'username': name,
+        'username': username,
         'password': password,
+        'fullname': fullname,
       };
 
       try {
         final response = await http.post(
           Uri.parse(
-              "http://10.13.48.244:8000/users/register/"), // Thay URL API của bạn
+              "http://10.13.19.0:8000/users/register/"), // Thay URL API của bạn
           headers: {'Content-Type': 'application/json'},
           body: jsonEncode(userData),
         );
@@ -54,6 +57,8 @@ class _RegisterPageState extends State<RegisterPage> {
             PageRouteBuilder(
               pageBuilder: (context, animation, secondaryAnimation) =>
                   CustomerHomePage(
+                username: usernameController.text,
+                password: passwordController.text,
                 cusid: 1,
               ),
               transitionsBuilder:
@@ -127,9 +132,9 @@ class _RegisterPageState extends State<RegisterPage> {
 
               // Trường nhập tên
               TextField(
-                controller: nameController,
+                controller: usernameController,
                 decoration: const InputDecoration(
-                  labelText: 'Full Name',
+                  labelText: 'Username',
                   border: OutlineInputBorder(),
                 ),
               ),
@@ -141,6 +146,17 @@ class _RegisterPageState extends State<RegisterPage> {
                 obscureText: true, // Ẩn nội dung nhập vào
                 decoration: const InputDecoration(
                   labelText: 'Password',
+                  border: OutlineInputBorder(),
+                ),
+              ),
+              const SizedBox(height: 20),
+
+              // Trường nhập số điện thoại
+              TextField(
+                controller: fullnameController,
+                //obscureText: true, // Ẩn nội dung nhập vào
+                decoration: const InputDecoration(
+                  labelText: 'Full name',
                   border: OutlineInputBorder(),
                 ),
               ),

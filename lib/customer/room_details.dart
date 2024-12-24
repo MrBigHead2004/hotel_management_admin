@@ -7,12 +7,15 @@ import 'package:flutter_2/customer/customer_home_page.dart';
 class DetailsPage extends StatefulWidget {
   final String type; // Loại phòng
   final int cusid;
-
-  const DetailsPage({
-    Key? key,
-    required this.type,
-    required this.cusid,
-  }) : super(key: key);
+  final String username;
+  final String password;
+  const DetailsPage(
+      {Key? key,
+      required this.type,
+      required this.cusid,
+      required this.password,
+      required this.username})
+      : super(key: key);
 
   @override
   State<DetailsPage> createState() => _DetailsPageState();
@@ -74,6 +77,8 @@ class _DetailsPageState extends State<DetailsPage> {
                 context,
                 MaterialPageRoute(
                   builder: (context) => CustomerHomePage(
+                    password: widget.password,
+                    username: widget.username,
                     cusid: widget.cusid,
                   ),
                 ),
@@ -142,6 +147,8 @@ class _DetailsPageState extends State<DetailsPage> {
                                       context,
                                       MaterialPageRoute(
                                         builder: (context) => BookingPage(
+                                          password: widget.password,
+                                          username: widget.username,
                                           cusid: widget.cusid,
                                         ),
                                       ),

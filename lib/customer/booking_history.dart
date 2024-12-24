@@ -6,8 +6,13 @@ import 'package:flutter_2/customer/customer_home_page.dart';
 
 class BookingHistory extends StatefulWidget {
   final int cusid;
-  const BookingHistory({super.key, required this.cusid});
-
+  const BookingHistory(
+      {super.key,
+      required this.cusid,
+      required this.password,
+      required this.username});
+  final String username;
+  final String password;
   @override
   State<BookingHistory> createState() => _BookingHistoryState();
 }
@@ -96,6 +101,8 @@ class _BookingHistoryState extends State<BookingHistory> {
                 context,
                 MaterialPageRoute(
                   builder: (context) => CustomerHomePage(
+                    password: widget.password,
+                    username: widget.username,
                     cusid: widget.cusid,
                   ),
                 ),
@@ -118,6 +125,8 @@ class _BookingHistoryState extends State<BookingHistory> {
                 context,
                 MaterialPageRoute(
                   builder: (context) => BookingPage(
+                    password: widget.password,
+                    username: widget.username,
                     cusid: widget.cusid,
                   ),
                 ),
@@ -166,7 +175,7 @@ class _BookingHistoryState extends State<BookingHistory> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'Room ID: ${booking['room_id']}',
+                              'Room ID: ${booking['name']}',
                               style: const TextStyle(
                                 fontWeight: FontWeight.bold,
                                 fontSize: 16,
@@ -192,6 +201,11 @@ class _BookingHistoryState extends State<BookingHistory> {
                               'Price: \$${booking['price']} per day',
                               style: const TextStyle(
                                   fontSize: 14, fontWeight: FontWeight.bold),
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              'Status: ${booking['status']}',
+                              style: const TextStyle(fontSize: 14),
                             ),
                           ],
                         ),

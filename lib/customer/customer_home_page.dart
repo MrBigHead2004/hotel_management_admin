@@ -6,7 +6,13 @@ import 'package:flutter_2/customer/garden_longe_bar_page.dart';
 import 'package:flutter_2/customer/room_details.dart';
 
 class CustomerHomePage extends StatefulWidget {
-  const CustomerHomePage({super.key, required this.cusid});
+  const CustomerHomePage(
+      {super.key,
+      required this.cusid,
+      required this.password,
+      required this.username});
+  final String username;
+  final String password;
   final int cusid;
   @override
   State<CustomerHomePage> createState() => _CustomerHomePageState();
@@ -26,28 +32,28 @@ class _CustomerHomePageState extends State<CustomerHomePage> {
             style: TextStyle(color: Color(0xFFFFFFF0), fontSize: 40),
           ),
           iconTheme: const IconThemeData(color: Color(0xFFFFFFF0)),
-          leading: Transform.scale(
-            scale: 1.5,
-            child: TextButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => CustomerHomePage(
-                      cusid: widget.cusid,
-                    ),
-                  ),
-                );
-              },
-              child: const Text(
-                'HOME', // Chữ hiển thị
-                style: TextStyle(
-                  color: Color(0xfffffff0),
-                  fontSize: 10, // Kích thước chữ
-                ),
-              ),
-            ),
-          ),
+          // leading: Transform.scale(
+          //   scale: 1.5,
+          //   child: TextButton(
+          //     onPressed: () {
+          //       Navigator.push(
+          //         context,
+          //         MaterialPageRoute(
+          //           builder: (context) => CustomerHomePage(
+          //             cusid: widget.cusid,
+          //           ),
+          //         ),
+          //       );
+          //     },
+          //     child: const Text(
+          //       'HOME', // Chữ hiển thị
+          //       style: TextStyle(
+          //         color: Color(0xfffffff0),
+          //         fontSize: 10, // Kích thước chữ
+          //       ),
+          //     ),
+          //   ),
+          // ),
           actions: <Widget>[
             // Các nút điều hướng
             TextButton(
@@ -57,6 +63,8 @@ class _CustomerHomePageState extends State<CustomerHomePage> {
                   MaterialPageRoute(
                     builder: (context) => BookingPage(
                       cusid: widget.cusid,
+                      password: widget.password,
+                      username: widget.username,
                     ),
                   ),
                 );
@@ -72,6 +80,8 @@ class _CustomerHomePageState extends State<CustomerHomePage> {
                   context,
                   MaterialPageRoute(
                     builder: (context) => BookingHistory(
+                      password: widget.password,
+                      username: widget.username,
                       cusid: widget.cusid,
                     ),
                   ),
@@ -163,6 +173,8 @@ class _CustomerHomePageState extends State<CustomerHomePage> {
                                             MaterialPageRoute(
                                                 builder: (context) =>
                                                     BookingPage(
+                                                      password: widget.password,
+                                                      username: widget.username,
                                                       cusid: widget.cusid,
                                                     )),
                                           );
@@ -183,6 +195,8 @@ class _CustomerHomePageState extends State<CustomerHomePage> {
                                             MaterialPageRoute(
                                                 builder: (context) =>
                                                     DetailsPage(
+                                                      password: widget.password,
+                                                      username: widget.username,
                                                       type: 'DeluxeDouble',
                                                       cusid: widget.cusid,
                                                     )),
@@ -248,6 +262,8 @@ class _CustomerHomePageState extends State<CustomerHomePage> {
                                             MaterialPageRoute(
                                                 builder: (context) =>
                                                     BookingPage(
+                                                      password: widget.password,
+                                                      username: widget.username,
                                                       cusid: widget.cusid,
                                                     )),
                                           );
@@ -268,6 +284,8 @@ class _CustomerHomePageState extends State<CustomerHomePage> {
                                             MaterialPageRoute(
                                                 builder: (context) =>
                                                     DetailsPage(
+                                                      password: widget.password,
+                                                      username: widget.username,
                                                       type: 'ExecutiveDouble',
                                                       cusid: widget.cusid,
                                                     )),
@@ -335,6 +353,8 @@ class _CustomerHomePageState extends State<CustomerHomePage> {
                                             MaterialPageRoute(
                                                 builder: (context) =>
                                                     BookingPage(
+                                                      password: widget.password,
+                                                      username: widget.username,
                                                       cusid: widget.cusid,
                                                     )),
                                           );
@@ -355,6 +375,8 @@ class _CustomerHomePageState extends State<CustomerHomePage> {
                                             MaterialPageRoute(
                                                 builder: (context) =>
                                                     DetailsPage(
+                                                      password: widget.password,
+                                                      username: widget.username,
                                                       type: 'JuniorSuiteDouble',
                                                       cusid: widget.cusid,
                                                     )),
@@ -478,6 +500,8 @@ class _CustomerHomePageState extends State<CustomerHomePage> {
                                             MaterialPageRoute(
                                                 builder: (context) =>
                                                     ComVangRestaurantPage(
+                                                      password: widget.password,
+                                                      username: widget.username,
                                                       cusid: widget.cusid,
                                                     )),
                                           );
@@ -572,6 +596,8 @@ class _CustomerHomePageState extends State<CustomerHomePage> {
                                           MaterialPageRoute(
                                               builder: (context) =>
                                                   GardenLongeBarPage(
+                                                    password: widget.password,
+                                                    username: widget.username,
                                                     cusid: widget.cusid,
                                                   )),
                                         );

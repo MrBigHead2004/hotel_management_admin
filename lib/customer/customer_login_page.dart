@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'customer_home_page.dart'; // Màn hình khách hàng sau khi đăng nhập
-import 'package:flutter/services.dart'; // Để sử dụng rootBundle để đọc file JSON
+import 'package:http/http.dart' as http; // Thêm HTTP package
+import 'customer_home_page.dart';
 
 class CustomerLoginPage extends StatefulWidget {
   const CustomerLoginPage({super.key});
@@ -13,86 +13,82 @@ class CustomerLoginPage extends StatefulWidget {
 class _CustomerLoginPageState extends State<CustomerLoginPage> {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
-  List<Map<String, dynamic>> customers = [];
 
-  // Hàm tải dữ liệu khách hàng từ file JSON
-  Future<void> loadCustomerData() async {
-    // Đọc file JSON chứa dữ liệu người dùng
-    final String response =
-        await rootBundle.loadString('assets/data/customers.json');
-    final data = json.decode(response);
+  bool isLoading = false;
 
-    // Chuyển dữ liệu JSON thành danh sách các khách hàng
-    setState(() {
-      customers = List<Map<String, dynamic>>.from(data);
-    });
-  }
-
-  // Hàm kiểm tra đăng nhập
+  // 🛡️ Hàm đăng nhập qua API
   Future<void> checkCustomerLogin() async {
-    String inputUsername = emailController.text;
-    String inputPassword = passwordController.text;
+    String inputUsername = emailController.text.trim();
+    String inputPassword = passwordController.text.trim();
 
-    // Kiểm tra xem email và mật khẩu có khớp với dữ liệu trong file JSON
-    Map<String, dynamic>? validCustomer = customers.firstWhere(
-      (customer) =>
-          customer['username'] == inputUsername &&
-          customer['password'] == inputPassword,
-      orElse: () => {},
-    );
+    if (inputUsername.isEmpty || inputPassword.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+            content: Text('Please enter both username and password')),
+      );
+      return;
+    }
 
-    if (validCustomer != {}) {
-      if (validCustomer['cus_id'] != null) {
-        // Lấy cus_id từ dữ liệu người dùng
+    setState(() {
+      isLoading = true;
+    });
 
-        // Nếu đăng nhập thành công, chuyển sang trang khách hàng với cus_id
-        Navigator.pushAndRemoveUntil(
-          context,
-          PageRouteBuilder(
-            pageBuilder: (context, animation, secondaryAnimation) =>
-                CustomerHomePage(
-              cusid: validCustomer[
-                  'cus_id'], // Truyền cus_id thay vì email và password
+    try {
+      final response = await http.post(
+        Uri.parse(
+            'http://10.13.19.0:8000/users/login/'), // Thay thế URL API của bạn
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'username': inputUsername,
+          'password': inputPassword,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+
+        if (data['status'] == 'success') {
+          int cusId = data['user_id'];
+
+          // ✅ Điều hướng đến trang CustomerHomePage với cus_id
+          Navigator.pushAndRemoveUntil(
+            context,
+            PageRouteBuilder(
+              pageBuilder: (context, animation, secondaryAnimation) =>
+                  CustomerHomePage(
+                cusid: cusId,
+                username: emailController.text.trim(),
+                password: passwordController.text.trim(),
+              ),
+              transitionsBuilder:
+                  (context, animation, secondaryAnimation, child) {
+                return FadeTransition(
+                  opacity: animation,
+                  child: child,
+                );
+              },
             ),
-            transitionsBuilder:
-                (context, animation, secondaryAnimation, child) {
-              return FadeTransition(
-                opacity: animation,
-                child: child,
-              );
-            },
-          ),
-          (route) => false,
-        );
+            (route) => false,
+          );
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(data['message'] ?? 'Login failed')),
+          );
+        }
       } else {
-        // Nếu đăng nhập thất bại, hiển thị thông báo lỗi
-        showDialog(
-          context: context,
-          builder: (context) {
-            return const AlertDialog(
-              content: Text("Invalid username or password."),
-            );
-          },
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Failed to login. Try again later.')),
         );
       }
-    } else {
-      // Nếu đăng nhập thất bại, hiển thị thông báo lỗi
-      showDialog(
-        context: context,
-        builder: (context) {
-          return const AlertDialog(
-            content: Text("Invalid username or password."),
-          );
-        },
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error: $e')),
       );
+    } finally {
+      setState(() {
+        isLoading = false;
+      });
     }
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    // Tải dữ liệu người dùng khi trang được khởi tạo
-    loadCustomerData();
   }
 
   @override
@@ -114,201 +110,93 @@ class _CustomerLoginPageState extends State<CustomerLoginPage> {
             children: [
               if (screenWidth > 800)
                 Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Expanded(
                       flex: 2,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const SizedBox(height: 50),
-                          const Center(
-                            child: Text(
-                              "Welcome!",
-                              style: TextStyle(fontSize: 40),
-                            ),
-                          ),
-                          const SizedBox(height: 50),
-                          const Text(
-                            "Username",
-                            style: TextStyle(fontSize: 24),
-                          ),
-                          TextField(
-                            controller: emailController,
-                            decoration: InputDecoration(
-                              labelText: 'Username',
-                              enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(8.0),
-                                borderSide: BorderSide(
-                                  color: const Color.fromARGB(255, 3, 33, 22)
-                                      .withOpacity(0.3),
-                                  width: 1.5,
-                                ),
-                              ),
-                              focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(4.0),
-                                borderSide: BorderSide(
-                                  color: const Color.fromARGB(255, 3, 33, 22)
-                                      .withOpacity(0.8),
-                                  width: 2.0,
-                                ),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(height: 20),
-                          const Text(
-                            "Password",
-                            style: TextStyle(fontSize: 24),
-                          ),
-                          TextField(
-                            controller: passwordController,
-                            decoration: InputDecoration(
-                              labelText: 'Password',
-                              enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(8.0),
-                                borderSide: BorderSide(
-                                  color: const Color.fromARGB(255, 3, 33, 22)
-                                      .withOpacity(0.3),
-                                  width: 1.5,
-                                ),
-                              ),
-                              focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(4.0),
-                                borderSide: BorderSide(
-                                  color: const Color.fromARGB(255, 3, 33, 22)
-                                      .withOpacity(0.8),
-                                  width: 2.0,
-                                ),
-                              ),
-                            ),
-                            obscureText: true,
-                          ),
-                          const SizedBox(height: 20),
-                          Center(
-                            child: SizedBox(
-                              width: double.infinity,
-                              height: 60,
-                              child: TextButton(
-                                style: TextButton.styleFrom(
-                                  backgroundColor:
-                                      const Color.fromARGB(255, 3, 33, 22),
-                                ),
-                                onPressed: checkCustomerLogin,
-                                child: const Text(
-                                  'Login',
-                                  style: TextStyle(
-                                      fontSize: 20, color: Color(0xFFFFFFF0)),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
+                      child: _loginForm(),
                     ),
                     const SizedBox(width: 20),
-                    if (screenWidth > 800)
-                      Expanded(
-                        flex: 3,
-                        child: Image.asset(
-                          'assets/image/hotel_login_image.jpg',
-                          fit: BoxFit.cover,
-                        ),
+                    Expanded(
+                      flex: 3,
+                      child: Image.asset(
+                        'assets/image/hotel_login_image.jpg',
+                        fit: BoxFit.cover,
                       ),
+                    ),
                   ],
                 )
               else
-                Column(
-                  children: [
-                    const SizedBox(height: 50),
-                    const Text(
-                      "Welcome !",
-                      style: TextStyle(fontSize: 40),
-                    ),
-                    const SizedBox(height: 20),
-                    const Text(
-                      "Username",
-                      style: TextStyle(fontSize: 24),
-                    ),
-                    TextField(
-                      controller: emailController,
-                      decoration: InputDecoration(
-                        labelText: 'Email',
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8.0),
-                          borderSide: BorderSide(
-                            color: const Color.fromARGB(255, 3, 33, 22)
-                                .withOpacity(0.3),
-                            width: 1.5,
-                          ),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(4.0),
-                          borderSide: BorderSide(
-                            color: const Color.fromARGB(255, 3, 33, 22)
-                                .withOpacity(0.8),
-                            width: 2.0,
-                          ),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-                    const Text(
-                      "Password",
-                      style: TextStyle(fontSize: 24),
-                    ),
-                    TextField(
-                      controller: passwordController,
-                      decoration: InputDecoration(
-                        labelText: 'Password',
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8.0),
-                          borderSide: BorderSide(
-                            color: const Color.fromARGB(255, 3, 33, 22)
-                                .withOpacity(0.3),
-                            width: 1.5,
-                          ),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(4.0),
-                          borderSide: BorderSide(
-                            color: const Color.fromARGB(255, 3, 33, 22)
-                                .withOpacity(0.8),
-                            width: 2.0,
-                          ),
-                        ),
-                      ),
-                      obscureText: true,
-                    ),
-                    const SizedBox(height: 20),
-                    Center(
-                      child: SizedBox(
-                        width: double.infinity,
-                        height: 60,
-                        child: TextButton(
-                          style: TextButton.styleFrom(
-                            backgroundColor:
-                                const Color.fromARGB(255, 3, 33, 22),
-                          ),
-                          onPressed: checkCustomerLogin,
-                          child: const Text(
-                            'Login',
-                            style: TextStyle(
-                                fontSize: 20, color: Color(0xFFFFFFF0)),
-                          ),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-                    Image.asset(
-                      'assets/image/hotel_login_image.jpg',
-                      fit: BoxFit.cover,
-                    ),
-                  ],
-                ),
+                _loginForm(),
             ],
           ),
         ),
       ),
+    );
+  }
+
+  Widget _loginForm() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const SizedBox(height: 50),
+        const Text(
+          "Welcome!",
+          style: TextStyle(fontSize: 40),
+        ),
+        const SizedBox(height: 20),
+        const Text(
+          "Username",
+          style: TextStyle(fontSize: 24),
+        ),
+        TextField(
+          controller: emailController,
+          decoration: InputDecoration(
+            labelText: 'Username',
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8.0),
+              borderSide: const BorderSide(color: Colors.grey, width: 1.5),
+            ),
+          ),
+        ),
+        const SizedBox(height: 20),
+        const Text(
+          "Password",
+          style: TextStyle(fontSize: 24),
+        ),
+        TextField(
+          controller: passwordController,
+          decoration: InputDecoration(
+            labelText: 'Password',
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8.0),
+              borderSide: const BorderSide(color: Colors.grey, width: 1.5),
+            ),
+          ),
+          obscureText: true,
+        ),
+        const SizedBox(height: 20),
+        Center(
+          child: SizedBox(
+            width: double.infinity,
+            height: 60,
+            child: ElevatedButton(
+              onPressed: isLoading ? null : checkCustomerLogin,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color.fromARGB(255, 3, 33, 22),
+              ),
+              child: isLoading
+                  ? const CircularProgressIndicator(
+                      color: Colors.white,
+                    )
+                  : const Text(
+                      'Login',
+                      style: TextStyle(fontSize: 20, color: Color(0xFFFFFFF0)),
+                    ),
+            ),
+          ),
+        ),
+        const SizedBox(height: 20),
+      ],
     );
   }
 }

@@ -17,10 +17,9 @@ class _BookingsPageState extends State<BookingsPage> {
   double totalAmount = 0.0;
 
   final Map<String, double> roomPrices = {
-    'Single Room - 101': 100.0,
-    'Double Room - 102': 150.0,
-    'Suite - 201': 200.0,
-    'Deluxe Suite - 202': 250.0,
+    'DeluxeDouble - 101': 100.0,
+    'ExecutiveDouble - 102': 150.0,
+    'Junior Suite Double - 201': 200.0,
   };
 
   Future<void> _selectDate(BuildContext context, bool isCheckIn) async {
@@ -30,12 +29,38 @@ class _BookingsPageState extends State<BookingsPage> {
       firstDate: DateTime.now(),
       lastDate: DateTime.now().add(const Duration(days: 365)),
     );
+
     if (picked != null) {
       setState(() {
         if (isCheckIn) {
           checkInDate = picked;
+
+          // Kiểm tra checkOutDate nếu đã chọn trước đó
+          if (checkOutDate != null &&
+              checkOutDate!.isBefore(picked.add(const Duration(days: 1)))) {
+            checkOutDate = null; // Reset checkOutDate nếu không hợp lệ
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text(
+                    'Check-out date must be at least 1 day after check-in date!'),
+                backgroundColor: Colors.black,
+              ),
+            );
+          }
         } else {
-          checkOutDate = picked;
+          // Kiểm tra nếu checkOutDate nhỏ hơn hoặc bằng checkInDate
+          if (checkInDate != null &&
+              picked.isBefore(checkInDate!.add(const Duration(days: 1)))) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text(
+                    'Check-out date must be at least 1 day after check-in date!'),
+                backgroundColor: Colors.black,
+              ),
+            );
+          } else {
+            checkOutDate = picked;
+          }
         }
       });
     }
@@ -298,7 +323,9 @@ class _BookingsPageState extends State<BookingsPage> {
                     ),
                     const SizedBox(height: defaultPadding),
                     Text(
-                      '\$${totalAmount.toStringAsFixed(2)}',
+                      (checkInDate == null || checkOutDate == null)
+                          ? '\$${totalAmount.toStringAsFixed(2)}'
+                          : '\$${(totalAmount * checkOutDate!.difference(checkInDate!).inDays).toStringAsFixed(2)}',
                       style: const TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.bold,

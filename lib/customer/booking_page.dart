@@ -3,9 +3,16 @@ import 'dart:convert'; // Để làm việc với JSON
 import 'package:flutter/services.dart';
 import 'package:flutter_2/customer/booking_history.dart';
 import 'package:flutter_2/customer/customer_home_page.dart'; // Để đọc file JSON
+import 'package:http/http.dart' as http;
 
 class BookingPage extends StatefulWidget {
-  const BookingPage({super.key, required this.cusid});
+  const BookingPage(
+      {super.key,
+      required this.cusid,
+      required this.password,
+      required this.username});
+  final String username;
+  final String password;
   final int cusid;
 
   @override
@@ -17,7 +24,8 @@ class _BookingPageState extends State<BookingPage> {
   DateTime? checkInDate;
   DateTime? checkOutDate;
   List<dynamic> bookings = []; // Danh sách các booking từ file JSON
-  List<dynamic> rooms = []; // Danh sách các phòng từ file JSON
+  List<dynamic> rooms =
+      []; // Danh sách các phòng từ file JSON// Danh sách các phòng từ file JSON
 
   @override
   void initState() {
@@ -29,24 +37,48 @@ class _BookingPageState extends State<BookingPage> {
 
   // Hàm để đọc file booking.json và rooms.json
   Future<void> _loadData() async {
-    final String roomResponse =
-        await rootBundle.loadString('assets/data/room_to_book.json');
-    final String bookingResponse =
-        await rootBundle.loadString('assets/data/booking.json');
+    String username = widget.username;
+    String password = widget.password;
+    String credentials = '$username:$password';
+    String base64Credentials = base64Encode(utf8.encode(credentials));
+    try {
+      // 1️⃣ Tải dữ liệu phòng từ API
+      final response = await http.get(
+        Uri.parse('http://10.13.19.0:8000/api/rooms/'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization':
+              'Basic $base64Credentials', // Thêm Basic Auth vào header
+        },
+      );
+      final String bookingResponse =
+          await rootBundle.loadString('assets/data/booking.json');
 
-    final roomData = json.decode(roomResponse);
-    final bookingData = json.decode(bookingResponse);
+      if (response.statusCode == 200) {
+        final roomData = json.decode(response.body);
+        final bookingData = json.decode(bookingResponse);
 
-    setState(() {
-      rooms = roomData;
-      bookings = bookingData;
-    });
+        setState(() {
+          rooms = roomData; // Dữ liệu phòng từ API
+          bookings = bookingData; // Dữ liệu đặt phòng từ API
+        });
+      } else {
+        throw Exception(' Lỗi tải dữ liệu từ API');
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(' Lỗi tải dữ liệu từ API: $e'),
+          duration: const Duration(seconds: 15),
+        ),
+      );
+    }
   }
 
   // Kiểm tra phòng có trùng lịch không
   bool isRoomAvailable(String roomId) {
     for (var booking in bookings) {
-      if (booking['room_id'] == roomId) {
+      if (booking['name'] == roomId) {
         DateTime bookingCheckInDate = DateTime.parse(booking['check_in_date']);
         DateTime bookingCheckOutDate =
             DateTime.parse(booking['check_out_date']);
@@ -54,7 +86,8 @@ class _BookingPageState extends State<BookingPage> {
         if ((checkInDate!.isBefore(bookingCheckOutDate) &&
                 checkOutDate!.isAfter(bookingCheckInDate)) ||
             (checkInDate!.isAtSameMomentAs(bookingCheckInDate) ||
-                checkOutDate!.isAtSameMomentAs(bookingCheckOutDate))) {
+                    checkOutDate!.isAtSameMomentAs(bookingCheckOutDate)) &&
+                (booking['status'] == 'Confirmed')) {
           return false; // Phòng không có sẵn
         }
       }
@@ -110,7 +143,7 @@ class _BookingPageState extends State<BookingPage> {
       int numNights = checkOutDate!.difference(checkInDate!).inDays;
 
       selectedRooms.forEach((roomName, details) {
-        int roomPrice = details['price'];
+        double roomPrice = details['price'];
         total += roomPrice * numNights;
       });
     }
@@ -133,17 +166,17 @@ class _BookingPageState extends State<BookingPage> {
           itemCount: rooms.length, // Số lượng phòng từ JSON
           itemBuilder: (context, index) {
             var room = rooms[index];
-            String roomId = room['room_id'];
-            int roomPrice = room['price'];
-            String roomType = room['room_type'];
+            String roomId = room['name'];
+            //int roomPrice = room['price'];
+            int roomType = room['room_types'];
 
             // Viết tắt tên các loại phòng
             String abbreviatedRoomType = '';
-            if (roomType == 'DeluxeDouble') {
+            if (roomType == 1) {
               abbreviatedRoomType = 'DDR';
-            } else if (roomType == 'ExecutiveDouble') {
+            } else if (roomType == 2) {
               abbreviatedRoomType = 'EDR';
-            } else if (roomType == 'JuniorSuiteDouble') {
+            } else if (roomType == 3) {
               abbreviatedRoomType = 'JSD';
             }
 
@@ -158,9 +191,9 @@ class _BookingPageState extends State<BookingPage> {
                       selectedRooms.remove(roomId);
                     } else {
                       selectedRooms[roomId] = {
-                        'price': roomPrice,
+                        //'price': roomPrice,
                         'quantity': 1,
-                        'type': room['room_type']
+                        'type': room['room_types']
                       };
                     }
                   });
@@ -179,7 +212,7 @@ class _BookingPageState extends State<BookingPage> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
-                        '$roomId\n$abbreviatedRoomType-$roomPrice\$',
+                        '$roomId\n$abbreviatedRoomType\$',
                         textAlign: TextAlign.center,
                         style: const TextStyle(
                           fontSize: 10,
@@ -317,6 +350,8 @@ class _BookingPageState extends State<BookingPage> {
                             context,
                             MaterialPageRoute(
                               builder: (context) => CustomerHomePage(
+                                password: widget.password,
+                                username: widget.username,
                                 cusid: widget.cusid,
                               ),
                             ),
@@ -377,6 +412,8 @@ class _BookingPageState extends State<BookingPage> {
                 context,
                 MaterialPageRoute(
                   builder: (context) => CustomerHomePage(
+                    password: widget.password,
+                    username: widget.username,
                     cusid: widget.cusid,
                   ),
                 ),
@@ -400,6 +437,8 @@ class _BookingPageState extends State<BookingPage> {
                 context,
                 MaterialPageRoute(
                   builder: (context) => BookingHistory(
+                    password: widget.password,
+                    username: widget.username,
                     cusid: widget.cusid,
                   ),
                 ),

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_2/customer/employee_login_page.dart';
 import 'package:flutter_2/customer/register_page.dart';
 
 import 'admin/admin_main_page.dart';

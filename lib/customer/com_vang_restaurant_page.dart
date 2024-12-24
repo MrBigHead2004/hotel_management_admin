@@ -5,7 +5,13 @@ import 'package:flutter_2/customer/customer_home_page.dart';
 import 'package:flutter_2/customer/garden_longe_bar_page.dart';
 
 class ComVangRestaurantPage extends StatefulWidget {
-  const ComVangRestaurantPage({super.key, required this.cusid});
+  const ComVangRestaurantPage(
+      {super.key,
+      required this.cusid,
+      required this.password,
+      required this.username});
+  final String username;
+  final String password;
   final int cusid;
 
   @override
@@ -33,6 +39,8 @@ class _ComVangRestaurantPageState extends State<ComVangRestaurantPage> {
                   context,
                   MaterialPageRoute(
                     builder: (context) => CustomerHomePage(
+                      password: widget.password,
+                      username: widget.username,
                       cusid: widget.cusid,
                     ),
                   ),
@@ -55,6 +63,8 @@ class _ComVangRestaurantPageState extends State<ComVangRestaurantPage> {
                   context,
                   MaterialPageRoute(
                     builder: (context) => BookingPage(
+                      password: widget.password,
+                      username: widget.username,
                       cusid: widget.cusid,
                     ),
                   ),
@@ -71,6 +81,8 @@ class _ComVangRestaurantPageState extends State<ComVangRestaurantPage> {
                   context,
                   MaterialPageRoute(
                     builder: (context) => BookingHistory(
+                      password: widget.password,
+                      username: widget.username,
                       cusid: widget.cusid,
                     ),
                   ),
@@ -568,6 +580,8 @@ class _ComVangRestaurantPageState extends State<ComVangRestaurantPage> {
                               context,
                               MaterialPageRoute(
                                   builder: (context) => GardenLongeBarPage(
+                                        password: widget.password,
+                                        username: widget.username,
                                         cusid: widget.cusid,
                                       )),
                             );

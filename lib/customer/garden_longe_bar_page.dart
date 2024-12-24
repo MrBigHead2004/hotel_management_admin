@@ -6,7 +6,13 @@ import 'package:flutter_2/customer/customer_home_page.dart';
 
 //import 'dart:html' as html;
 class GardenLongeBarPage extends StatefulWidget {
-  const GardenLongeBarPage({super.key, required this.cusid});
+  const GardenLongeBarPage(
+      {super.key,
+      required this.cusid,
+      required this.password,
+      required this.username});
+  final String username;
+  final String password;
   final int cusid;
 
   @override
@@ -37,6 +43,8 @@ class _GardenLongeBarPageState extends State<GardenLongeBarPage> {
                   context,
                   MaterialPageRoute(
                     builder: (context) => CustomerHomePage(
+                      password: widget.password,
+                      username: widget.username,
                       cusid: widget.cusid,
                     ),
                   ),
@@ -59,6 +67,8 @@ class _GardenLongeBarPageState extends State<GardenLongeBarPage> {
                   context,
                   MaterialPageRoute(
                     builder: (context) => BookingPage(
+                      password: widget.password,
+                      username: widget.username,
                       cusid: widget.cusid,
                     ),
                   ),
@@ -75,6 +85,8 @@ class _GardenLongeBarPageState extends State<GardenLongeBarPage> {
                   context,
                   MaterialPageRoute(
                     builder: (context) => BookingHistory(
+                      password: widget.password,
+                      username: widget.username,
                       cusid: widget.cusid,
                     ),
                   ),
@@ -527,6 +539,8 @@ class _GardenLongeBarPageState extends State<GardenLongeBarPage> {
                                 context,
                                 MaterialPageRoute(
                                     builder: (context) => ComVangRestaurantPage(
+                                          password: widget.password,
+                                          username: widget.username,
                                           cusid: widget.cusid,
                                         )),
                               );
