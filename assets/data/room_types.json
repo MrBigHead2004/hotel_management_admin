@@ -1,0 +1,21 @@
+[
+    {
+      "type_id":1,
+      "room_type": "DeluxeDouble",
+      "price": 100,
+      "description": "A deluxe double room with modern amenities and a spacious layout."
+    },
+    {
+      "type_id":2,
+      "room_type": "ExecutiveDouble",
+      "price": 150,
+      "description": "An executive double room offering luxury and premium services."
+    },
+    {
+      "type_id":3,
+      "room_type": "JuniorSuiteDouble",
+      "price": 200,
+      "description": "A junior suite double with a separate living area and elegant decor."
+    }
+  ]
+  
