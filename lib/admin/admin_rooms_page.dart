@@ -18,6 +18,10 @@ class _RoomsPageState extends State<RoomsPage> {
   List<Map<String, dynamic>> availableRooms = [];
   DateTime? selectedCheckIn;
   DateTime? selectedCheckOut;
+  
+  // Add these variables for sorting
+  String _sortColumn = 'name'; // Default sort by room name
+  bool _isAscending = true;
 
   @override
   void initState() {
@@ -116,6 +120,65 @@ class _RoomsPageState extends State<RoomsPage> {
     }
   }
 
+  void _sortRooms(String column) {
+    setState(() {
+      if (_sortColumn == column) {
+        // If clicking the same column, reverse the sort order
+        _isAscending = !_isAscending;
+      } else {
+        // If clicking a different column, set it as the sort column and default to ascending
+        _sortColumn = column;
+        _isAscending = true;
+      }
+
+      availableRooms.sort((a, b) {
+        var aValue = a[column];
+        var bValue = b[column];
+
+        // Handle numeric values (like price)
+        if (aValue is num && bValue is num) {
+          return _isAscending ? aValue.compareTo(bValue) : bValue.compareTo(aValue);
+        }
+
+        // Handle string values
+        return _isAscending
+            ? aValue.toString().compareTo(bValue.toString())
+            : bValue.toString().compareTo(aValue.toString());
+      });
+    });
+  }
+
+  Widget _buildHeader(String title, String column) {
+    var themeNotifier = Provider.of<ThemeNotifier>(context);
+    
+    return InkWell(
+      onTap: () => _sortRooms(column),
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Row(
+          children: [
+            Text(
+              title,
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 16.0,
+                color: themeNotifier.isDarkMode ? Colors.white : Colors.black,
+              ),
+            ),
+            if (_sortColumn == column) ...[
+              const SizedBox(width: 4),
+              Icon(
+                _isAscending ? Icons.arrow_upward : Icons.arrow_downward,
+                size: 16,
+                color: themeNotifier.isDarkMode ? Colors.white : Colors.black,
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     var themeNotifier = Provider.of<ThemeNotifier>(context);
@@ -137,7 +200,14 @@ class _RoomsPageState extends State<RoomsPage> {
               children: [
                 ElevatedButton(
                   onPressed: pickDateRange,
-                  child: const Text('Select Check-in & Check-out Dates'),
+                  style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.blue,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(
+                                defaultCornerRadius - defaultPadding),
+                          ),
+                        ),
+                  child: const Text('Select Check-in & Check-out Dates', style: TextStyle(color: Colors.white)),
                 ),
                 if (selectedCheckIn != null && selectedCheckOut != null)
                   Padding(
@@ -151,13 +221,13 @@ class _RoomsPageState extends State<RoomsPage> {
             ),
             const SizedBox(height: defaultPadding),
 
-            // Hàng tiêu đề bảng
+            // Updated header row
             Row(
               children: [
-                Expanded(child: _buildHeader('No.')),
-                Expanded(child: _buildHeader('Room ID')),
-                Expanded(child: _buildHeader('Room Type')),
-                Expanded(child: _buildHeader('Price')),
+                Expanded(child: _buildHeader('No.', 'id')),
+                Expanded(child: _buildHeader('Room ID', 'name')),
+                Expanded(child: _buildHeader('Room Type', 'room_types')),
+                Expanded(child: _buildHeader('Price', 'price')),
               ],
             ),
 
@@ -183,22 +253,6 @@ class _RoomsPageState extends State<RoomsPage> {
               ),
             ),
           ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildHeader(String title) {
-    var themeNotifier = Provider.of<ThemeNotifier>(context);
-
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: Text(
-        title,
-        style: TextStyle(
-          fontWeight: FontWeight.bold,
-          fontSize: 16.0,
-          color: themeNotifier.isDarkMode ? Colors.white : Colors.black,
         ),
       ),
     );

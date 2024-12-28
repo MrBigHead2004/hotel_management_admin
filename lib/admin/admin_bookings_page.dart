@@ -2,6 +2,10 @@ import 'constants.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'admin_theme_notifier.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+
+enum CustomerType { registered, unregistered }
 
 class BookingsPage extends StatefulWidget {
   const BookingsPage({super.key});
@@ -15,12 +19,86 @@ class _BookingsPageState extends State<BookingsPage> {
   DateTime? checkInDate;
   DateTime? checkOutDate;
   double totalAmount = 0.0;
+  CustomerType selectedCustomerType = CustomerType.unregistered;
+  String? userId;
+  
+  List<dynamic> rooms = [];
+  List<dynamic> bookings = [];
 
-  final Map<String, double> roomPrices = {
-    'DeluxeDouble - 101': 100.0,
-    'ExecutiveDouble - 102': 150.0,
-    'Junior Suite Double - 201': 200.0,
-  };
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController phoneController = TextEditingController();
+  final TextEditingController usernameController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
+  final TextEditingController fullnameController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    _loadData();
+  }
+
+  Future<void> _loadData() async {
+    String emCre = 'theanh:123456';
+    String baseCre = base64Encode(utf8.encode(emCre));
+
+    try {
+      final http.Response roomResponse = await http.get(
+        Uri.parse('http://127.0.0.1:8000/api/rooms/'),
+        headers: {
+          'Authorization': 'Basic $baseCre',
+          'Content-Type': 'application/json',
+        },
+      );
+
+      final http.Response bookingResponse = await http.get(
+        Uri.parse('http://127.0.0.1:8000/employees/bookings/allhistory/'),
+        headers: {
+          'Authorization': 'Basic $baseCre',
+          'Content-Type': 'application/json',
+        },
+      );
+
+      if (roomResponse.statusCode == 200 && bookingResponse.statusCode == 200) {
+        final roomData = json.decode(roomResponse.body);
+        final bookingData = json.decode(bookingResponse.body);
+
+        setState(() {
+          rooms = List.from(roomData)
+            ..sort((a, b) => a['name'].compareTo(b['name']));
+          bookings = bookingData;
+        });
+      } else {
+        throw Exception('Failed to fetch data from API');
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error loading data: $e')),
+      );
+    }
+  }
+
+  bool isRoomAvailable(int roomId) {
+    if (checkInDate == null || checkOutDate == null) return true;
+
+    for (var booking in bookings) {
+      if (booking['room'] == roomId) {
+        DateTime bookingCheckIn = DateTime.parse(booking['check_in_date']);
+        DateTime bookingCheckOut = DateTime.parse(booking['check_out_date']);
+
+        if (booking['status'] == 'Cancelled') {
+          continue;
+        }
+
+        if ((checkInDate!.isBefore(bookingCheckOut) &&
+            checkOutDate!.isAfter(bookingCheckIn)) ||
+            (checkInDate!.isAtSameMomentAs(bookingCheckIn) ||
+                checkOutDate!.isAtSameMomentAs(bookingCheckOut))) {
+          return false;
+        }
+      }
+    }
+    return true;
+  }
 
   Future<void> _selectDate(BuildContext context, bool isCheckIn) async {
     final DateTime? picked = await showDatePicker(
@@ -35,10 +113,9 @@ class _BookingsPageState extends State<BookingsPage> {
         if (isCheckIn) {
           checkInDate = picked;
 
-          // Kiểm tra checkOutDate nếu đã chọn trước đó
           if (checkOutDate != null &&
               checkOutDate!.isBefore(picked.add(const Duration(days: 1)))) {
-            checkOutDate = null; // Reset checkOutDate nếu không hợp lệ
+            checkOutDate = null;
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(
                 content: Text(
@@ -48,7 +125,6 @@ class _BookingsPageState extends State<BookingsPage> {
             );
           }
         } else {
-          // Kiểm tra nếu checkOutDate nhỏ hơn hoặc bằng checkInDate
           if (checkInDate != null &&
               picked.isBefore(checkInDate!.add(const Duration(days: 1)))) {
             ScaffoldMessenger.of(context).showSnackBar(
@@ -66,23 +142,249 @@ class _BookingsPageState extends State<BookingsPage> {
     }
   }
 
+  Future<void> registerCustomer() async {
+    final String email = emailController.text;
+    final String phone = phoneController.text;
+    final String username = usernameController.text;
+    final String password = passwordController.text;
+    final String fullname = fullnameController.text;
+
+    if (email.isNotEmpty &&
+        phone.isNotEmpty &&
+        username.isNotEmpty &&
+        password.isNotEmpty &&
+        fullname.isNotEmpty) {
+      final Map<String, String> userData = {
+        'email': email,
+        'phone_number': phone,
+        'username': username,
+        'password': password,
+        'fullname': fullname,
+      };
+
+      try {
+        final response = await http.post(
+          Uri.parse("http://127.0.0.1:8000/users/register/"),
+          headers: {'Content-Type': 'application/json'},
+          body: jsonEncode(userData),
+        );
+
+        if (response.statusCode == 201) {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Customer Registration Successful')),
+            );
+          }
+        } else {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('Registration Failed: ${response.body}')),
+            );
+          }
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Error: $e')),
+          );
+        }
+      }
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please fill all fields')),
+      );
+    }
+  }
+
+  Future<void> confirmBooking() async {
+    if (selectedRoom == null || checkInDate == null || checkOutDate == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please select room and dates')),
+      );
+      return;
+    }
+
+    String emCre = 'theanh:123456';
+    String baseCre = base64Encode(utf8.encode(emCre));
+
+    final roomResponse = await http.get(
+      Uri.parse('http://127.0.0.1:8000/api/rooms/'),
+      headers: {
+        'Authorization': 'Basic $baseCre',
+        'Content-Type': 'application/json',
+      },
+    );
+
+    if (roomResponse.statusCode != 200) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Failed to get room information')),
+      );
+      return;
+    }
+
+    final List<dynamic> rooms = json.decode(roomResponse.body);
+    final room = rooms.firstWhere(
+      (room) => room['name'] == selectedRoom,
+      orElse: () => null,
+    );
+
+    if (room == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Room not found')),
+      );
+      return;
+    }
+
+    String formattedCheckIn = "${checkInDate!.year}-${checkInDate!.month}-${checkInDate!.day}";
+    String formattedCheckOut = "${checkOutDate!.year}-${checkOutDate!.month}-${checkOutDate!.day}";
+
+    final Map<String, dynamic> bookingData = {
+      'room': room['id'],
+      'check_in_date': formattedCheckIn,
+      'check_out_date': formattedCheckOut,
+      'status': "Confirmed",
+    };
+
+    if (selectedCustomerType == CustomerType.registered && userId != null) {
+      bookingData['user_id'] = int.tryParse(userId!);
+    }
+
+    try {
+      final response = await http.post(
+        Uri.parse('http://127.0.0.1:8000/api/bookings/'),
+        headers: {
+          'Authorization': 'Basic $baseCre',
+          'Content-Type': 'application/json',
+        },
+        body: json.encode(bookingData),
+      );
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Booking confirmed successfully!'),
+              backgroundColor: Colors.green,
+            ),
+          );
+          setState(() {
+            selectedRoom = null;
+            checkInDate = null;
+            checkOutDate = null;
+            userId = null;
+            emailController.clear();
+            phoneController.clear();
+            usernameController.clear();
+            passwordController.clear();
+            fullnameController.clear();
+          });
+        }
+      } else {
+        throw Exception('Failed to create booking');
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error creating booking: $e')),
+        );
+      }
+    }
+  }
+
+  Widget _buildCustomerInfoSection() {
+    if (selectedCustomerType == CustomerType.registered) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text('Customer ID',
+              style: TextStyle(fontWeight: FontWeight.w600)),
+          const SizedBox(height: defaultPadding),
+          BookingInputField(
+            hintText: 'Enter Customer ID',
+            icon: const Icon(Icons.person),
+            onChanged: (value) {
+              setState(() {
+                userId = value;
+              });
+            },
+          ),
+        ],
+      );
+    } else {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text('Customer information',
+              style: TextStyle(fontWeight: FontWeight.w600)),
+          const SizedBox(height: defaultPadding),
+          BookingInputField(
+            controller: fullnameController,
+            hintText: 'Full Name',
+            icon: const Icon(Icons.person),
+          ),
+          const SizedBox(height: defaultPadding),
+          BookingInputField(
+            controller: phoneController,
+            hintText: 'Phone Number',
+            icon: const Icon(Icons.phone),
+            typeOfKeyboard: TextInputType.phone,
+          ),
+          const SizedBox(height: defaultPadding),
+          BookingInputField(
+            controller: emailController,
+            hintText: 'Email',
+            icon: const Icon(Icons.email_rounded),
+            typeOfKeyboard: TextInputType.emailAddress,
+          ),
+          const SizedBox(height: defaultPadding),
+          BookingInputField(
+            controller: usernameController,
+            hintText: 'Username',
+            icon: const Icon(Icons.account_circle),
+          ),
+          const SizedBox(height: defaultPadding),
+          BookingInputField(
+            controller: passwordController,
+            hintText: 'Password',
+            icon: const Icon(Icons.lock),
+            obscureText: true,
+          ),
+          const SizedBox(height: defaultPadding),
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton.icon(
+              onPressed: registerCustomer,
+              icon: const Icon(Icons.person_add, color: Colors.white),
+              label: const Text('Register Customer', 
+                style: TextStyle(color: Colors.white)
+              ),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.blue,
+                padding: const EdgeInsets.symmetric(vertical: defaultPadding),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(defaultCornerRadius - defaultPadding),
+                ),
+              ),
+            ),
+          ),
+        ],
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     var themeNotifier = Provider.of<ThemeNotifier>(context);
 
     return Expanded(
       child: SingleChildScrollView(
-        padding: const EdgeInsets.only(
-            top: defaultPadding * 2,
-            left: defaultPadding * 2,
-            right: defaultPadding * 2),
+        padding: const EdgeInsets.all(defaultPadding * 2),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Expanded(
               flex: 2,
               child: Container(
-                height: 1000.0,
                 padding: const EdgeInsets.all(defaultPadding * 2),
                 decoration: BoxDecoration(
                   color: themeNotifier.isDarkMode
@@ -98,26 +400,65 @@ class _BookingsPageState extends State<BookingsPage> {
                         style: TextStyle(
                             fontWeight: FontWeight.w600, fontSize: 20)),
                     const SizedBox(height: defaultPadding * 2),
-                    const Text('Customer information',
-                        style: TextStyle(fontWeight: FontWeight.w600)),
-                    const SizedBox(height: defaultPadding),
-                    const BookingInputField(
-                      hintText: 'Full Name',
-                      icon: Icon(Icons.person),
+                    
+                    Row(
+                      children: [
+                        Expanded(
+                          child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: selectedCustomerType == CustomerType.registered
+                                  ? Colors.blue
+                                  : (themeNotifier.isDarkMode ? Colors.white.withOpacity(0.2) 
+                                                              : Colors.black.withOpacity(0.2)
+                                    ),
+                              padding: const EdgeInsets.symmetric(vertical: 16),
+                            ),
+                            onPressed: () {
+                              setState(() {
+                                selectedCustomerType = CustomerType.registered;
+                              });
+                            },
+                            child: Text(
+                              'Registered Customer',
+                              style: TextStyle(
+                                color: selectedCustomerType == CustomerType.registered
+                                    ? Colors.white
+                                    : Colors.black,
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: defaultPadding),
+                        Expanded(
+                          child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: selectedCustomerType == CustomerType.unregistered
+                                  ? Colors.blue
+                                  : Colors.grey,
+                              padding: const EdgeInsets.symmetric(vertical: 16),
+                            ),
+                            onPressed: () {
+                              setState(() {
+                                selectedCustomerType = CustomerType.unregistered;
+                              });
+                            },
+                            child: Text(
+                              'Unregistered Customer',
+                              style: TextStyle(
+                                color: selectedCustomerType == CustomerType.unregistered
+                                    ? Colors.white
+                                    : Colors.black,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                     const SizedBox(height: defaultPadding * 2),
-                    const BookingInputField(
-                      hintText: 'Phone Number',
-                      icon: Icon(Icons.phone),
-                      typeOfKeyboard: TextInputType.phone,
-                    ),
+                    
+                    _buildCustomerInfoSection(),
                     const SizedBox(height: defaultPadding * 2),
-                    const BookingInputField(
-                      hintText: 'Email',
-                      icon: Icon(Icons.email_rounded),
-                      typeOfKeyboard: TextInputType.emailAddress,
-                    ),
-                    const SizedBox(height: defaultPadding * 2),
+
                     const Text('Room selection',
                         style: TextStyle(fontWeight: FontWeight.w600)),
                     const SizedBox(height: defaultPadding),
@@ -146,22 +487,40 @@ class _BookingsPageState extends State<BookingsPage> {
                                 hint: Text(
                                   'Select Room',
                                   style: TextStyle(
-                                      color: themeNotifier.isDarkMode
-                                          ? Colors.white24
-                                          : Colors.black38),
+                                    color: themeNotifier.isDarkMode
+                                        ? Colors.white24
+                                        : Colors.black38),
                                 ),
                                 isExpanded: true,
                                 value: selectedRoom,
-                                items: roomPrices.keys.map((String room) {
+                                items: rooms.map((room) {
+                                  bool isAvailable = isRoomAvailable(room['id']);
                                   return DropdownMenuItem<String>(
-                                    value: room,
-                                    child: Text(room),
+                                    value: room['name'],
+                                    enabled: isAvailable,
+                                    child: Row(
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Text(room['name']),
+                                        Text(
+                                          '\$${room['price']}',
+                                          style: TextStyle(
+                                            color: isAvailable ? Colors.green : Colors.red,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
                                   );
                                 }).toList(),
                                 onChanged: (String? newValue) {
                                   setState(() {
                                     selectedRoom = newValue;
-                                    totalAmount = roomPrices[newValue] ?? 0.0;
+                                    if (newValue != null) {
+                                      var room = rooms.firstWhere((r) => r['name'] == newValue);
+                                      totalAmount = double.tryParse(room['price'].toString()) ?? 0.0;
+                                    } else {
+                                      totalAmount = 0.0;
+                                    }
                                   });
                                 },
                                 isDense: true,
@@ -345,7 +704,30 @@ class _BookingsPageState extends State<BookingsPage> {
                           ),
                         ),
                         onPressed: () {
-                          // Add booking confirmation logic here
+                          showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return AlertDialog(
+                                title: const Text('Booking Confirmation'),
+                                content: const Text('Are you sure you want to confirm this booking?'),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () {
+                                      Navigator.pop(context);
+                                      confirmBooking();
+                                    },
+                                    child: const Text('YES'),
+                                  ),
+                                  TextButton(
+                                    onPressed: () {
+                                      Navigator.pop(context);
+                                    },
+                                    child: const Text('NO'),
+                                  ),
+                                ],
+                              );
+                            },
+                          );
                         },
                         child: const Text(
                           'Confirm Booking',
@@ -373,17 +755,25 @@ class BookingInputField extends StatelessWidget {
     required this.hintText,
     required this.icon,
     this.typeOfKeyboard,
+    this.onChanged,
+    this.controller,
+    this.obscureText = false,
   });
 
   final String hintText;
   final Icon icon;
   final TextInputType? typeOfKeyboard;
+  final Function(String)? onChanged;
+  final TextEditingController? controller;
+  final bool obscureText;
 
   @override
   Widget build(BuildContext context) {
     var themeNotifier = Provider.of<ThemeNotifier>(context);
 
     return TextField(
+      controller: controller,
+      obscureText: obscureText,
       decoration: InputDecoration(
         hintText: hintText,
         hintStyle: TextStyle(
@@ -398,6 +788,7 @@ class BookingInputField extends StatelessWidget {
         prefixIconColor: themeNotifier.isDarkMode ? Colors.white : Colors.black,
       ),
       keyboardType: typeOfKeyboard,
+      onChanged: onChanged,
     );
   }
 }

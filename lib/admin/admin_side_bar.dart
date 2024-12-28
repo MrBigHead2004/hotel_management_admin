@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'constants.dart';
-import 'admin_home_page.dart';
 import 'admin_rooms_page.dart';
 import 'admin_bookings_page.dart';
 import 'admin_history_page.dart';
@@ -43,12 +42,6 @@ class SideBar extends StatelessWidget {
                   color: themeNotifier.isDarkMode ? Colors.white : Colors.black,
                 ),
               ),
-            ),
-            DrawerListTile(
-              icon: const Icon(Icons.home),
-              title: 'Home',
-              isSelected: currentPage == 'Home',
-              press: () => onPageChange(const HomePage(), 'Home'),
             ),
             DrawerListTile(
               icon: const Icon(Icons.grid_view_rounded),

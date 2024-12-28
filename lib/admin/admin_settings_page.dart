@@ -25,32 +25,9 @@ class SettingsPage extends StatelessWidget {
           child: Column(
             children: [
               DarkModeSwitch(themeNotifier: themeNotifier),
-              const SizedBox(height: defaultPadding),
-              Container(
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      'Notifications',
-                      style: TextStyle(
-                        color: themeNotifier.isDarkMode
-                            ? Colors.white
-                            : Colors.black,
-                        fontWeight: FontWeight.w600,
-                        fontSize: 18.0,
-                      ),
-                    ),
-                    CupertinoSwitch(
-                      value: true,
-                      activeColor: Colors.blueAccent,
-                      onChanged: (value) {},
-                    ),
-                  ],
-                ),
-              )
             ],
           ),
-        ),
+        )
       ),
     );
   }

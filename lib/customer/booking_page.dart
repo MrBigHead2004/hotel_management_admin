@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'dart:convert'; // Để làm việc với JSON
-import 'package:flutter/services.dart';
 import 'package:flutter_2/customer/booking_history.dart';
 import 'package:flutter_2/customer/customer_home_page.dart';
 import 'package:http/http.dart' as http;
@@ -366,7 +365,7 @@ class _BookingPageState extends State<BookingPage> {
                       const SizedBox(height: 8),
                     ],
                   );
-                }).toList(),
+                }),
                 const Divider(),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
