@@ -610,7 +610,7 @@ class _CustomerHomePageState extends State<CustomerHomePage> {
                                       "The bar is a year-round beer bar that is \nthoroughly dedicated to providing customers \nwith the perfect draft to enjoy their drink \nmoment of the day.",
                                       style: TextStyle(
                                         fontSize: 15,
-                                        color: Colors.black,
+                                        // color: Colors.black,
                                       ),
                                     ),
                                     const SizedBox(

@@ -280,7 +280,7 @@ class _BookingPageState extends State<BookingPage> {
                       style: const TextStyle(fontSize: 14),
                     ),
                   );
-                }).toList(),
+                }),
                 const Divider(),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
