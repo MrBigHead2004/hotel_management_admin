@@ -4,7 +4,7 @@ from rest_framework import status
 from django.contrib.auth import get_user_model 
 from django.contrib.auth import authenticate, login
 from rest_framework.permissions import AllowAny
-
+from home.models import Customer
 User = get_user_model()
 # Create your views here.
 class RegisterView(APIView):
@@ -14,6 +14,7 @@ class RegisterView(APIView):
         password = request.data.get('password')
         email = request.data.get('email')
         phone_number = request.data.get('phone_number','')
+        fullname = request.data.get('fullname', '')
         if not username or not password or not email:
             return Response({
                'detail': 'Usename, password or email are required.' 
@@ -24,8 +25,10 @@ class RegisterView(APIView):
             },status=status.HTTP_400_BAD_REQUEST)
         try:
             user = User.objects.create_user(username=username, password=password, email=email)
+            customer = Customer.objects.create(user=user, phone_number=phone_number, fullname=fullname)
             user.phone_number = phone_number
             user.save()
+            customer.save()
 
             
             return Response({
@@ -33,7 +36,8 @@ class RegisterView(APIView):
                 'message': 'User registered successfully!',
                 'user_id': user.id,
                 'email': user.email,
-                'phone_number': user.phone_number or "N/A",
+                'phone_number': customer.phone_number or "N/A",
+                'fullname': customer.fullname,
             },status=status.HTTP_201_CREATED)
         except Exception as e:
             return Response({
@@ -44,9 +48,6 @@ class LoginView(APIView):
     def post(self, request):
         username = request.data.get('username')
         password = request.data.get('password')
-        #email = request.data.get('email')
-        #phone_number = request.data.get('phone_number','')
-        #user = User.objects.filter(username=username).first()
         if not username or not password:
             return Response({
                 'error': 'Invalid credent'
@@ -56,6 +57,13 @@ class LoginView(APIView):
             return Response({
                 'error': 'Invalid credentials.'
             }, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            customer = Customer.objects.get(user=user)
+            phone_number = customer.phone_number or "N/A"
+            fullname = customer.fullname or "N/A"
+        except Customer.DoesNotExist:
+            # Nếu không tồn tại Customer, trả về thông tin cơ bản
+            phone_number = "N/A"
 
         login(request, user)
         return Response({
@@ -63,6 +71,6 @@ class LoginView(APIView):
             'message': 'Login successful!',
             'user_id': user.id,
             'email': user.email,
-            #'phone_number': user.phone_number or "N/A",
+            'phone_number': customer.phone_number or "N/A",
         }, status=status.HTTP_200_OK)
 
