@@ -1,3 +1,5 @@
+import 'package:flutter_2/admin/admin_login_page.dart';
+
 import 'constants.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -160,6 +162,12 @@ class ProfileCard extends StatelessWidget {
               break;
             case 'logout':
               // handle logout action
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const LoginPage(),
+                ),
+              );
               break;
           }
         },
@@ -179,7 +187,7 @@ class ProfileCard extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.symmetric(
                     horizontal: defaultPadding, vertical: defaultPadding / 4),
-                child: Text('Nhat Hoang Le',
+                child: Text('Admin',
                     style: TextStyle(
                         fontSize: 16,
                         color: themeNotifier.isDarkMode

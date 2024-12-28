@@ -42,7 +42,8 @@ class MyApp extends StatelessWidget {
                 ),
               ),
             ),
-            themeMode: themeNotifier.isDarkMode ? ThemeMode.dark : ThemeMode.light,
+            themeMode:
+                themeNotifier.isDarkMode ? ThemeMode.dark : ThemeMode.light,
             home: const FirstPage(),
           );
         },

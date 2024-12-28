@@ -107,7 +107,7 @@ class _CustomerLoginPageState extends State<CustomerLoginPage> {
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(
-        children: [
+            children: [
               if (screenWidth > 800)
                 Row(
                   children: [
@@ -120,60 +120,60 @@ class _CustomerLoginPageState extends State<CustomerLoginPage> {
                       flex: 3,
                       child: Image.asset(
                         'assets/image/hotel_login_image.jpg',
-                fit: BoxFit.cover,
-              ),
-            ),
+                        fit: BoxFit.cover,
+                      ),
+                    ),
                   ],
                 )
               else
                 _loginForm(),
             ],
-              ),
-            ),
           ),
+        ),
+      ),
     );
   }
 
   Widget _loginForm() {
     return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
         const SizedBox(height: 50),
-          const Text(
-            "Welcome to hotel IT3180!",
-            style: TextStyle(fontSize: 40),
-          ),
+        const Text(
+          "Welcome to hotel IT3180!",
+          style: TextStyle(fontSize: 40),
+        ),
         const SizedBox(height: 20),
-          const Text(
-            "Username",
-            style: TextStyle(fontSize: 24),
-          ),
-          TextField(
-            controller: emailController,
-            decoration: InputDecoration(
+        const Text(
+          "Username",
+          style: TextStyle(fontSize: 24),
+        ),
+        TextField(
+          controller: emailController,
+          decoration: InputDecoration(
             labelText: 'Username',
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8.0),
-                borderSide: const BorderSide(color: Colors.grey, width: 1.5),
-              ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8.0),
+              borderSide: const BorderSide(color: Colors.grey, width: 1.5),
             ),
           ),
+        ),
         const SizedBox(height: 20),
-          const Text(
-            "Password",
-            style: TextStyle(fontSize: 24),
-          ),
-          TextField(
-            controller: passwordController,
-            decoration: InputDecoration(
+        const Text(
+          "Password",
+          style: TextStyle(fontSize: 24),
+        ),
+        TextField(
+          controller: passwordController,
+          decoration: InputDecoration(
             labelText: 'Password',
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8.0),
-                borderSide: const BorderSide(color: Colors.grey, width: 1.5),
-              ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8.0),
+              borderSide: const BorderSide(color: Colors.grey, width: 1.5),
             ),
-            obscureText: true,
           ),
+          obscureText: true,
+        ),
         const SizedBox(height: 20),
         Center(
           child: SizedBox(
@@ -194,7 +194,7 @@ class _CustomerLoginPageState extends State<CustomerLoginPage> {
                     ),
             ),
           ),
-      ),
+        ),
         const SizedBox(height: 20),
       ],
     );

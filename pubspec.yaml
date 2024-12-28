@@ -57,18 +57,11 @@ flutter:
   assets:
     - assets/image/
     - assets/data/
+    - assets/fonts/
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in
   # the material Icons class.
   uses-material-design: true
-
-  fonts:
-    - family: SF Pro Display
-      fonts:
-        - asset: assets/fonts/SF-Pro-Display-Regular.otf
-          weight: 400
-        - asset: assets/fonts/SF-Pro-Display-Semibold.otf
-          weight: 600
 
   # To add assets to your application, add an assets section, like this:
   # assets:

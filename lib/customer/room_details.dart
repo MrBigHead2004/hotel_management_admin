@@ -10,11 +10,12 @@ class DetailsPage extends StatefulWidget {
   final String username;
   final String password;
   const DetailsPage(
-      {super.key,
+      {Key? key,
       required this.type,
       required this.cusid,
       required this.password,
-      required this.username});
+      required this.username})
+      : super(key: key);
 
   @override
   State<DetailsPage> createState() => _DetailsPageState();

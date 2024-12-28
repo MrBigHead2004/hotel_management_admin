@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_2/admin/admin_login_page.dart';
 import 'package:flutter_2/customer/register_page.dart';
 
-
 class FirstPage extends StatelessWidget {
   const FirstPage({super.key});
   final String title = 'HOTEL IT3180';

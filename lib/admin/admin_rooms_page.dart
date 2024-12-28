@@ -18,7 +18,7 @@ class _RoomsPageState extends State<RoomsPage> {
   List<Map<String, dynamic>> availableRooms = [];
   DateTime? selectedCheckIn;
   DateTime? selectedCheckOut;
-  
+
   // Add these variables for sorting
   String _sortColumn = 'name'; // Default sort by room name
   bool _isAscending = true;
@@ -56,7 +56,8 @@ class _RoomsPageState extends State<RoomsPage> {
       if (roomResponse.statusCode == 200 && bookingResponse.statusCode == 200) {
         final List<dynamic> roomsData = json.decode(roomResponse.body);
         final List<dynamic> bookingsData = json.decode(bookingResponse.body);
-
+        roomsData.sort(
+            (a, b) => int.parse(a['name']).compareTo(int.parse(b['name'])));
         setState(() {
           rooms = List<Map<String, dynamic>>.from(roomsData);
           bookings = List<Map<String, dynamic>>.from(bookingsData);
@@ -137,7 +138,9 @@ class _RoomsPageState extends State<RoomsPage> {
 
         // Handle numeric values (like price)
         if (aValue is num && bValue is num) {
-          return _isAscending ? aValue.compareTo(bValue) : bValue.compareTo(aValue);
+          return _isAscending
+              ? aValue.compareTo(bValue)
+              : bValue.compareTo(aValue);
         }
 
         // Handle string values
@@ -150,7 +153,7 @@ class _RoomsPageState extends State<RoomsPage> {
 
   Widget _buildHeader(String title, String column) {
     var themeNotifier = Provider.of<ThemeNotifier>(context);
-    
+
     return InkWell(
       onTap: () => _sortRooms(column),
       child: Padding(
@@ -201,13 +204,14 @@ class _RoomsPageState extends State<RoomsPage> {
                 ElevatedButton(
                   onPressed: pickDateRange,
                   style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.blue,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(
-                                defaultCornerRadius - defaultPadding),
-                          ),
-                        ),
-                  child: const Text('Select Check-in & Check-out Dates', style: TextStyle(color: Colors.white)),
+                    backgroundColor: Colors.blue,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(
+                          defaultCornerRadius - defaultPadding),
+                    ),
+                  ),
+                  child: const Text('Select Check-in & Check-out Dates',
+                      style: TextStyle(color: Colors.white)),
                 ),
                 if (selectedCheckIn != null && selectedCheckOut != null)
                   Padding(
