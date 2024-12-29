@@ -50,7 +50,6 @@ class _BookingHistoryState extends State<BookingHistory> {
       }
 
       final List<dynamic> bookingData = json.decode(bookingResponse.body);
-
       // 📥 2. Lấy dữ liệu tất cả các phòng
       final roomResponse = await http.get(
         Uri.parse('http://127.0.0.1:8000/api/rooms/'),
@@ -59,11 +58,9 @@ class _BookingHistoryState extends State<BookingHistory> {
           'Content-Type': 'application/json',
         },
       );
-
       if (roomResponse.statusCode != 200) {
         throw Exception('Failed to load room data');
       }
-
       final List<dynamic> roomData = json.decode(roomResponse.body);
 
       // 🔄 3. Chuyển dữ liệu phòng thành Map để tra cứu nhanh
@@ -81,12 +78,15 @@ class _BookingHistoryState extends State<BookingHistory> {
           'room_name': roomInfo['name'],
           'check_in_date': booking['check_in_date'],
           'check_out_date': booking['check_out_date'],
-          'booking_date': booking['booking_time'].split('.')[0],
+          'booking_date': DateTime.parse(booking['booking_time'] ?? 'N/A')
+              .toLocal() // Chuyển về múi giờ cục bộ của thiết bị
+              .toString()
+              .split('.')[0],
           'price': roomInfo['price'], // Lấy giá phòng từ room API
           'status': booking['status'],
         };
       }).toList();
-
+      bookings.sort((a, b) => b['id'].compareTo(a['id']));
       setState(() {
         bookingHistory = bookings;
       });

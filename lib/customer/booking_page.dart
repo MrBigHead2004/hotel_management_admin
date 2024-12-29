@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:convert'; // Để làm việc với JSON
-import 'package:flutter/services.dart';
+//import 'package:flutter/services.dart';
 import 'package:flutter_2/customer/booking_history.dart';
 import 'package:flutter_2/customer/customer_home_page.dart';
 import 'package:http/http.dart' as http;
@@ -259,7 +259,7 @@ class _BookingPageState extends State<BookingPage> {
 
     if (response.statusCode == 200 || response.statusCode == 201) {
       // Nếu gọi API thành công
-      print('Room booking successful for ${roomDetails['name']}');
+      //print('Room booking successful for ${roomDetails['name']}');
     } else {
       // Nếu có lỗi
       print('Failed to book room for ${roomDetails['name']}');

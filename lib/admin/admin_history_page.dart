@@ -90,8 +90,10 @@ class _HistoryPageState extends State<HistoryPage> {
             'room_name': roomInfo['name'],
             'check_in_date': booking['check_in_date']?.toString() ?? 'N/A',
             'check_out_date': booking['check_out_date']?.toString() ?? 'N/A',
-            'booking_date':
-                (booking['booking_time'] ?? 'N/A').toString().split('.')[0],
+            'booking_date': DateTime.parse(booking['booking_time'] ?? 'N/A')
+                .toLocal()
+                .toString()
+                .split('.')[0],
             'price': roomInfo['price'],
             'status': booking['status']?.toString() ?? 'N/A',
           });

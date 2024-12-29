@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_2/customer/booking_history.dart';
 import 'package:flutter_2/customer/booking_page.dart';
 import 'package:flutter_2/customer/com_vang_restaurant_page.dart';
-import 'package:flutter_2/customer/customer_login_page.dart';
+//import 'package:flutter_2/customer/customer_login_page.dart';
 import 'package:flutter_2/customer/garden_longe_bar_page.dart';
 import 'package:flutter_2/customer/room_details.dart';
+import 'package:flutter_2/first_page.dart';
 
 class CustomerHomePage extends StatefulWidget {
   const CustomerHomePage(
@@ -54,8 +55,7 @@ class _CustomerHomePageState extends State<CustomerHomePage> {
                               Navigator.pushAndRemoveUntil(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) =>
-                                      const CustomerLoginPage(),
+                                  builder: (context) => const FirstPage(),
                                 ),
                                 (route) => false,
                               );

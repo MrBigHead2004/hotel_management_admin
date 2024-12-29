@@ -21,7 +21,6 @@ class _BookingsPageState extends State<BookingsPage> {
   double totalAmount = 0.0;
   CustomerType selectedCustomerType = CustomerType.unregistered;
   String? userId;
-  
   List<dynamic> rooms = [];
   List<dynamic> bookings = [];
 
@@ -30,7 +29,7 @@ class _BookingsPageState extends State<BookingsPage> {
   final TextEditingController usernameController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   final TextEditingController fullnameController = TextEditingController();
-
+  TextEditingController idController = TextEditingController();
   @override
   void initState() {
     super.initState();
@@ -90,7 +89,7 @@ class _BookingsPageState extends State<BookingsPage> {
         }
 
         if ((checkInDate!.isBefore(bookingCheckOut) &&
-            checkOutDate!.isAfter(bookingCheckIn)) ||
+                checkOutDate!.isAfter(bookingCheckIn)) ||
             (checkInDate!.isAtSameMomentAs(bookingCheckIn) ||
                 checkOutDate!.isAtSameMomentAs(bookingCheckOut))) {
           return false;
@@ -175,6 +174,10 @@ class _BookingsPageState extends State<BookingsPage> {
               const SnackBar(content: Text('Customer Registration Successful')),
             );
           }
+          userId = jsonDecode(response.body)['user_id'].toString();
+          selectedCustomerType = CustomerType.registered;
+          //print(userId);
+          idController = TextEditingController(text: '$userId');
         } else {
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
@@ -235,23 +238,25 @@ class _BookingsPageState extends State<BookingsPage> {
       return;
     }
 
-    String formattedCheckIn = "${checkInDate!.year}-${checkInDate!.month}-${checkInDate!.day}";
-    String formattedCheckOut = "${checkOutDate!.year}-${checkOutDate!.month}-${checkOutDate!.day}";
+    String formattedCheckIn =
+        "${checkInDate!.year}-${checkInDate!.month}-${checkInDate!.day}";
+    String formattedCheckOut =
+        "${checkOutDate!.year}-${checkOutDate!.month}-${checkOutDate!.day}";
 
     final Map<String, dynamic> bookingData = {
       'room': room['id'],
       'check_in_date': formattedCheckIn,
       'check_out_date': formattedCheckOut,
-      'status': "Confirmed",
     };
-
+    print(selectedCustomerType);
     if (selectedCustomerType == CustomerType.registered && userId != null) {
       bookingData['user_id'] = int.tryParse(userId!);
+      print("hello");
     }
 
     try {
       final response = await http.post(
-        Uri.parse('http://127.0.0.1:8000/api/bookings/'),
+        Uri.parse('http://127.0.0.1:8000/employees/bookings/'),
         headers: {
           'Authorization': 'Basic $baseCre',
           'Content-Type': 'application/json',
@@ -292,6 +297,7 @@ class _BookingsPageState extends State<BookingsPage> {
   }
 
   Widget _buildCustomerInfoSection() {
+    //print(userId);
     if (selectedCustomerType == CustomerType.registered) {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -306,7 +312,9 @@ class _BookingsPageState extends State<BookingsPage> {
               setState(() {
                 userId = value;
               });
+              //print(userId);
             },
+            controller: idController,
           ),
         ],
       );
@@ -355,14 +363,14 @@ class _BookingsPageState extends State<BookingsPage> {
             child: ElevatedButton.icon(
               onPressed: registerCustomer,
               icon: const Icon(Icons.person_add, color: Colors.white),
-              label: const Text('Register Customer', 
-                style: TextStyle(color: Colors.white)
-              ),
+              label: const Text('Register Customer',
+                  style: TextStyle(color: Colors.white)),
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.blue,
                 padding: const EdgeInsets.symmetric(vertical: defaultPadding),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(defaultCornerRadius - defaultPadding),
+                  borderRadius: BorderRadius.circular(
+                      defaultCornerRadius - defaultPadding),
                 ),
               ),
             ),
@@ -400,17 +408,17 @@ class _BookingsPageState extends State<BookingsPage> {
                         style: TextStyle(
                             fontWeight: FontWeight.w600, fontSize: 20)),
                     const SizedBox(height: defaultPadding * 2),
-                    
                     Row(
                       children: [
                         Expanded(
                           child: ElevatedButton(
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: selectedCustomerType == CustomerType.registered
+                              backgroundColor: selectedCustomerType ==
+                                      CustomerType.registered
                                   ? Colors.blue
-                                  : (themeNotifier.isDarkMode ? Colors.white.withOpacity(0.2) 
-                                                              : Colors.black.withOpacity(0.2)
-                                    ),
+                                  : (themeNotifier.isDarkMode
+                                      ? Colors.white.withOpacity(0.2)
+                                      : Colors.black.withOpacity(0.2)),
                               padding: const EdgeInsets.symmetric(vertical: 16),
                             ),
                             onPressed: () {
@@ -421,7 +429,8 @@ class _BookingsPageState extends State<BookingsPage> {
                             child: Text(
                               'Registered Customer',
                               style: TextStyle(
-                                color: selectedCustomerType == CustomerType.registered
+                                color: selectedCustomerType ==
+                                        CustomerType.registered
                                     ? Colors.white
                                     : Colors.black,
                               ),
@@ -432,20 +441,23 @@ class _BookingsPageState extends State<BookingsPage> {
                         Expanded(
                           child: ElevatedButton(
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: selectedCustomerType == CustomerType.unregistered
+                              backgroundColor: selectedCustomerType ==
+                                      CustomerType.unregistered
                                   ? Colors.blue
                                   : Colors.grey,
                               padding: const EdgeInsets.symmetric(vertical: 16),
                             ),
                             onPressed: () {
                               setState(() {
-                                selectedCustomerType = CustomerType.unregistered;
+                                selectedCustomerType =
+                                    CustomerType.unregistered;
                               });
                             },
                             child: Text(
                               'Unregistered Customer',
                               style: TextStyle(
-                                color: selectedCustomerType == CustomerType.unregistered
+                                color: selectedCustomerType ==
+                                        CustomerType.unregistered
                                     ? Colors.white
                                     : Colors.black,
                               ),
@@ -455,10 +467,8 @@ class _BookingsPageState extends State<BookingsPage> {
                       ],
                     ),
                     const SizedBox(height: defaultPadding * 2),
-                    
                     _buildCustomerInfoSection(),
                     const SizedBox(height: defaultPadding * 2),
-
                     const Text('Room selection',
                         style: TextStyle(fontWeight: FontWeight.w600)),
                     const SizedBox(height: defaultPadding),
@@ -487,25 +497,29 @@ class _BookingsPageState extends State<BookingsPage> {
                                 hint: Text(
                                   'Select Room',
                                   style: TextStyle(
-                                    color: themeNotifier.isDarkMode
-                                        ? Colors.white24
-                                        : Colors.black38),
+                                      color: themeNotifier.isDarkMode
+                                          ? Colors.white24
+                                          : Colors.black38),
                                 ),
                                 isExpanded: true,
                                 value: selectedRoom,
                                 items: rooms.map((room) {
-                                  bool isAvailable = isRoomAvailable(room['id']);
+                                  bool isAvailable =
+                                      isRoomAvailable(room['id']);
                                   return DropdownMenuItem<String>(
                                     value: room['name'],
                                     enabled: isAvailable,
                                     child: Row(
-                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
                                       children: [
                                         Text(room['name']),
                                         Text(
                                           '\$${room['price']}',
                                           style: TextStyle(
-                                            color: isAvailable ? Colors.green : Colors.red,
+                                            color: isAvailable
+                                                ? Colors.green
+                                                : Colors.red,
                                           ),
                                         ),
                                       ],
@@ -516,8 +530,11 @@ class _BookingsPageState extends State<BookingsPage> {
                                   setState(() {
                                     selectedRoom = newValue;
                                     if (newValue != null) {
-                                      var room = rooms.firstWhere((r) => r['name'] == newValue);
-                                      totalAmount = double.tryParse(room['price'].toString()) ?? 0.0;
+                                      var room = rooms.firstWhere(
+                                          (r) => r['name'] == newValue);
+                                      totalAmount = double.tryParse(
+                                              room['price'].toString()) ??
+                                          0.0;
                                     } else {
                                       totalAmount = 0.0;
                                     }
@@ -709,7 +726,8 @@ class _BookingsPageState extends State<BookingsPage> {
                             builder: (BuildContext context) {
                               return AlertDialog(
                                 title: const Text('Booking Confirmation'),
-                                content: const Text('Are you sure you want to confirm this booking?'),
+                                content: const Text(
+                                    'Are you sure you want to confirm this booking?'),
                                 actions: [
                                   TextButton(
                                     onPressed: () {

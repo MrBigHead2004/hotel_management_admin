@@ -161,13 +161,37 @@ class ProfileCard extends StatelessWidget {
               // handle settings action
               break;
             case 'logout':
-              // handle logout action
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const LoginPage(),
-                ),
+              // Hiển thị hộp thoại xác nhận trước khi đăng xuất
+              showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return AlertDialog(
+                    title: const Text('Log out confirmation'),
+                    content: const Text('Are you sure?'),
+                    actions: [
+                      TextButton(
+                        onPressed: () {
+                          Navigator.of(context).pop(); // Đóng hộp thoại
+                        },
+                        child: const Text('Cancel'),
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          Navigator.of(context).pop(); // Đóng hộp thoại
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const LoginPage(),
+                            ),
+                          );
+                        },
+                        child: const Text('Log out'),
+                      ),
+                    ],
+                  );
+                },
               );
+              break;
               break;
           }
         },
