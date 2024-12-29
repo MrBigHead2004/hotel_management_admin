@@ -34,7 +34,7 @@ class RegisterView(APIView):
             return Response({
                 'status': 'success',
                 'message': 'User registered successfully!',
-                'user_id': user.id,
+                'user_id': customer.id,
                 'email': user.email,
                 'phone_number': customer.phone_number or "N/A",
                 'fullname': customer.fullname,
@@ -69,7 +69,7 @@ class LoginView(APIView):
         return Response({
             'status': 'success',
             'message': 'Login successful!',
-            'user_id': user.id,
+            'user_id': customer.id,
             'email': user.email,
             'phone_number': customer.phone_number or "N/A",
         }, status=status.HTTP_200_OK)

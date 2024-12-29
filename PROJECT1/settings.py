@@ -57,7 +57,6 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'PROJECT1.urls'
-
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -112,11 +111,11 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Ho_Chi_Minh'
+USE_TZ = True
 
 USE_I18N = True
 
-USE_TZ = True
 
 
 # Static files (CSS, JavaScript, Images)
@@ -128,7 +127,6 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-AUTH_USER_MODELS = 'users.CustomUser'
 AUTHENTICATION_BACKEND = [
     'users.authentication.EmailOrPhoneBackend',
     'django.contrib.auth.backends.ModelBackend',
@@ -143,6 +141,8 @@ REST_FRAMEWORK = {
         'rest_framework.permissions.IsAuthenticated',
     ],
 }
+
+
 #SESSION_ENGINE = 'django.contrib.sessions.backends.db'
 #SESSION_COOKIE_NAME = "sessionid"  # Đảm bảo tên cookie là 'sessionid'
 #SESSION_COOKIE_AGE = 60 * 60 * 24 * 7  # Cookie sẽ tồn tại 7 ngày
