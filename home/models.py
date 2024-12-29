@@ -3,14 +3,17 @@ from django.contrib.auth.models import User
 #from django.contrib.auth.models import AbstractBaseUser
 from django.forms import ValidationError
 from datetime import date
+from django.utils import timezone
+from users.models import Customer
 # Create your models here.
 
-class Customer(models.Model):
-    phone_number = models.CharField(max_length=15, blank=True, null=True)
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
-    fullname = models.CharField(max_length=100, blank=True, null=True)
-    def __str__(self):
-        return self.user.username
+#class Customer(models.Model):
+    #phone_number = models.CharField(max_length=15, blank=True, null=True)
+   # user = models.OneToOneField(User, on_delete=models.CASCADE)
+   # id = models.AutoField(primary_key=True)
+    #fullname = models.CharField(max_length=100, blank=True, null=True)
+   # def __str__(self):
+      #  return self.user.username
 class RoomType(models.Model):
     type_id = models.AutoField(primary_key=True)
     type_name = models.CharField(max_length=50, choices=[('DeluxeDouble','DeluxeDouble'), ('ExecutiveDouble','ExecutiveDouble'), ('JuniorSuiteDouble','JuniorSuiteDouble')]) 

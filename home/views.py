@@ -109,16 +109,7 @@ class RoleCheckView(APIView):
             return Response({'role': 'employee'})
         else:
             return Response({'role': 'customer'})
-        
-'''class BookingHistoryView(APIView):
-    permission_classes = [IsAuthenticated]  # Chỉ cho phép nhân viên xem
-
-    def get(self, request):
-            bookings = Booking.objects.all()  # Lấy tất cả các booking
-            serializer = BookingSerializer(bookings, many=True)
-            return Response(serializer.data)'''
     
-
 
 # Thêm phòng
 class AddRoomView(APIView):

@@ -1,17 +1,16 @@
 from django.shortcuts import render
-
-# Create your views here.
-# Trong app home/views.py
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from home.models import Booking
-from home.serializers import BookingSerializer
+from .serializers import BookingSerializer
 from django.contrib.auth import get_user_model 
 from django.contrib.auth import authenticate, login
 from rest_framework.permissions import AllowAny
 from .models import Employee
+from home.models import Customer
+from django.contrib.auth.models import User
 User = get_user_model()
 # Create your views here.
 class RegisterView(APIView):
@@ -41,7 +40,7 @@ class RegisterView(APIView):
             return Response({
                 'status': 'success',
                 'message': 'User registered successfully!',
-                'employee_id': user.employee.id,
+                'employee_id': employee.id,
                 'email': user.email,
                 'phone_number': employee.phone_number or "N/A",
                 'fullname': employee.fullname,
@@ -76,7 +75,7 @@ class LoginView(APIView):
         return Response({
             'status': 'success',
             'message': 'Login successful!',
-            'employee_id': user.employee.id,
+            'employee_id': employee.id,
             'email': user.email,
             'phone_number': employee.phone_number or "N/A",
             'fullname': employee.fullname
@@ -91,5 +90,43 @@ class AllBookingHistoryView(APIView):
             return Response(serializer.data)
 
 
+
+
+class EmployeeBookingAPIView(APIView):
+    def post(self, request, *args, **kwargs):
+        # Lấy user_id từ request data
+        user_id = request.data.get("user_id")
+        room_id = request.data.get("room")
+        check_in_date = request.data.get("check_in_date")
+        check_out_date = request.data.get("check_out_date")
+
+        # Kiểm tra xem user_id có tồn tại trong request hay không
+        if not user_id:
+            return Response({"error": "Missing user_id in request data."}, status=status.HTTP_400_BAD_REQUEST)
+        
+        try:
+            customer = Customer.objects.filter(id=user_id).first()  # Tìm khách hàng theo id
+        except Customer.DoesNotExist:
+            return Response({"error": "Customer not found."}, status=status.HTTP_404_NOT_FOUND)
+
+        # Tạo dữ liệu đặt phòng
+        serializer = BookingSerializer(data=request.data, context={'request': request})
+        
+        # Kiểm tra dữ liệu hợp lệ
+        if serializer.is_valid():
+            # Lưu booking nếu dữ liệu hợp lệ
+            serializer.save(customer=customer)  # Gán customer  cho booking
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        
+        # Trả về lỗi nếu serializer không hợp lệ
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class ExampleView(APIView):
+    def get(self, request):
+        customer = Customer.objects.filter(id=1).first()
+        if customer:
+            return Response({"message": f"Found customer: {customer}"})
+        else:
+            return Response({"error": "Customer not found!"}, status=404)
 
 

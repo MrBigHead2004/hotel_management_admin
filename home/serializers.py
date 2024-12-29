@@ -13,7 +13,7 @@ class RoomSerializer(serializers.ModelSerializer):
 
 class BookingSerializer(serializers.ModelSerializer):
     booking_id = serializers.IntegerField(source='id', read_only=True)  # Thêm idbooking
-    user_id = serializers.IntegerField(source='customer.user.id', read_only=True)  # Thêm iduser
+    user_id = serializers.IntegerField(source='customer.id', read_only=True)  # Thêm iduser
     
 
     class Meta:
