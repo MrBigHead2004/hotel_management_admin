@@ -1,4 +1,5 @@
 import 'package:flutter_2/admin/admin_login_page.dart';
+import 'package:flutter_2/first_page.dart';
 
 import 'constants.dart';
 import 'package:flutter/material.dart';
@@ -181,7 +182,7 @@ class ProfileCard extends StatelessWidget {
                           Navigator.pushReplacement(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => const LoginPage(),
+                              builder: (context) => const FirstPage(),
                             ),
                           );
                         },
@@ -191,7 +192,6 @@ class ProfileCard extends StatelessWidget {
                   );
                 },
               );
-              break;
               break;
           }
         },
@@ -211,7 +211,7 @@ class ProfileCard extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.symmetric(
                     horizontal: defaultPadding, vertical: defaultPadding / 4),
-                child: Text('Admin',
+                child: Text('Menu',
                     style: TextStyle(
                         fontSize: 16,
                         color: themeNotifier.isDarkMode

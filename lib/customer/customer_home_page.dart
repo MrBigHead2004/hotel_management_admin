@@ -3,6 +3,7 @@ import 'package:flutter_2/customer/booking_history.dart';
 import 'package:flutter_2/customer/booking_page.dart';
 import 'package:flutter_2/customer/com_vang_restaurant_page.dart';
 //import 'package:flutter_2/customer/customer_login_page.dart';
+
 import 'package:flutter_2/customer/garden_longe_bar_page.dart';
 import 'package:flutter_2/customer/room_details.dart';
 import 'package:flutter_2/first_page.dart';
@@ -117,7 +118,13 @@ class _CustomerHomePageState extends State<CustomerHomePage> {
                 'HISTORY',
                 style: TextStyle(color: Color(0xFFFFFFF0)),
               ),
-            )
+            ),
+            TextButton(
+                onPressed: () {},
+                child: Text(
+                  'User ID: ${widget.cusid}',
+                  style: const TextStyle(color: Colors.white),
+                )),
           ],
           backgroundColor: const Color.fromARGB(255, 3, 33, 22),
         ),

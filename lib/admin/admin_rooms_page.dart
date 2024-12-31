@@ -153,6 +153,7 @@ class _RoomsPageState extends State<RoomsPage> {
 
   Widget _buildHeader(String title, String column) {
     var themeNotifier = Provider.of<ThemeNotifier>(context);
+    bool isSelected = _sortColumn == column;
 
     return InkWell(
       onTap: () => _sortRooms(column),
@@ -165,7 +166,11 @@ class _RoomsPageState extends State<RoomsPage> {
               style: TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: 16.0,
-                color: themeNotifier.isDarkMode ? Colors.white : Colors.black,
+                color: isSelected
+                    ? primaryColor
+                    : themeNotifier.isDarkMode
+                        ? Colors.white
+                        : Colors.black,
               ),
             ),
             if (_sortColumn == column) ...[
@@ -173,7 +178,11 @@ class _RoomsPageState extends State<RoomsPage> {
               Icon(
                 _isAscending ? Icons.arrow_upward : Icons.arrow_downward,
                 size: 16,
-                color: themeNotifier.isDarkMode ? Colors.white : Colors.black,
+                color: isSelected
+                    ? primaryColor
+                    : themeNotifier.isDarkMode
+                        ? Colors.white
+                        : Colors.black,
               ),
             ],
           ],
